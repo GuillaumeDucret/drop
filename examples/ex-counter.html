@@ -1,0 +1,25 @@
+<script type="module">
+    import { signal, effect } from '@webreflection/signal'
+
+    class Counter extends HTMLElement {
+        constructor() {
+            super()
+            this.count = signal(0)
+        }
+
+        increment(inc = 1) {
+            this.count.value += inc
+        }
+    }
+</script>
+
+<template>
+    <div>
+        <button onclick="{increment()}">counter is {count}</button>
+    </div>
+    <style>
+        button {
+            font-size: 1.5rem;
+        }
+    </style>
+</template>
