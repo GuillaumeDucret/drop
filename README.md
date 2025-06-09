@@ -42,7 +42,7 @@ Drop is a compiler which turns html modules into JS.
 ## Getting started
 
 ```
-git clone https://github.com/
+git clone git@github.com:GuillaumeDucret/drop.git
 cd ./drop
 npm i
 npm run examples
