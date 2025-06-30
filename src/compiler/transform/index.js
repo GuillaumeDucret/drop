@@ -30,24 +30,7 @@ const scriptVisitors = {
     ImportDeclaration
 }
 
-export function transform(ast, analysis, options) {
-    //console.log(JSON.stringify(ast.template, undefined, 2))
-
-    const template = walk(ast.template, { analysis, options }, templateVisitors)
-
-    //console.log(JSON.stringify(template, undefined, 2))
-
-    const state = {
-        analysis,
-        template,
-        options
-    }
-
-    return walk(ast.script.content, state, scriptVisitors)
-}
-
-export function transformTemplate(template) {
-    const state = {}
-
-    return walk(template, state, templateVisitors)
+export function transform(ast, analysis, context) {
+    const template = walk(ast.template, { analysis, context }, templateVisitors)
+    return walk(ast.script.content, { analysis, template, context }, scriptVisitors)
 }

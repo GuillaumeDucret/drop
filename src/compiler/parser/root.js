@@ -8,26 +8,26 @@ import { TokenTypes } from './tokentype.js'
  * @returns
  */
 export function parseRoot(p) {
-    const root = { type: 'Root' }
+    let script
+    let template
 
     p.skipWhitespaces()
     while (!p.isEOF()) {
         const lteToken = p.peakToken([TokenTypes.lte])
         const nameToken = p.peakToken([TokenTypes.name], lteToken)
 
-        if (nameToken?.value === 'script') {
-            root.script = parseScript(p)
-            p.skipWhitespaces()
-            continue
+        switch (nameToken?.value) {
+            case 'script':
+                script = parseScript(p)
+                break
+            case 'template':
+                template = parseTemplate(p)
+                break
+            default:
+                throw new Error('unexpected html tag at position ' + p.pos)
         }
-        if (nameToken?.value === 'template') {
-            root.template = parseTemplate(p)
-            p.skipWhitespaces()
-            continue
-        }
-
-        throw new Error('unexpected html tag at position ' + p.pos)
+        p.skipWhitespaces()
     }
 
-    return root
+    return { type: 'Root', script, template }
 }

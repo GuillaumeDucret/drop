@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "examples": "node ./src/bin/index.js -root ./examples -srcDir ."
+    "examples:counter": "node ./src/bin/index.js -root ./examples/counter -srcDir .",
+    "examples:site": "node ./src/bin/index.js -root ./examples/site -srcDir ."
   },
   "bin": {
     "drop": "./src/bin/index.js"

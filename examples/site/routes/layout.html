@@ -1,0 +1,44 @@
+<script type="module">
+    export function load(ctx, data) {
+        return {
+            welcome: 'Hello'
+        }
+    }
+</script>
+
+<template static>
+    <div>
+        <menu>
+            <h1>Menu</h1>
+            <ul>
+                <li><a href="/pages/1">Page 1</a></li>
+                <li><a href="/pages/2">Page 2</a></li>
+            </ul>
+        </menu>
+        <slot></slot>
+    </div>
+
+    <script type="module">
+        const h1 = document.querySelector('h1')
+
+        h1.style.setProperty('color', 'blue')
+        h1.onclick = () => {
+            window.location = '/'
+        }
+    </script>
+
+    <style>
+        div {
+            display: flex;
+        }
+        h1 {
+            cursor: pointer;
+        }
+        ul {
+            list-style-type: none;
+        }
+        a {
+            text-decoration: none;
+        }
+    </style>
+</template>

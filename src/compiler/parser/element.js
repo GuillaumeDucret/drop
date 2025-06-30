@@ -2,6 +2,7 @@ import { parseAttributes } from './attributes.js'
 import { parseIfBlock } from './block.js'
 import { parseExpressionTag } from './expression.js'
 import { Parser } from './parser.js'
+import { parseScript } from './script.js'
 import { parseStyle } from './style.js'
 import { TokenTypes } from './tokentype.js'
 
@@ -15,6 +16,7 @@ export function parseElement(p) {
     p.expectToken([TokenTypes.lte])
     p.expectToken([TokenTypes.name])
     const name = p.value
+    const type = name === 'slot' ? 'SlotElement' : 'Element'
     const attributes = parseAttributes(p)
     p.expectToken([TokenTypes.gte, TokenTypes.slashGte])
 
@@ -29,9 +31,9 @@ export function parseElement(p) {
 
         if (name !== tagNameClose) throw new Error('wrong closing tag')
 
-        return { type: 'Element', name, attributes, fragment, start, end: p.pos }
+        return { type, name, attributes, fragment, start, end: p.pos }
     }
-    return { type: 'Element', name, attributes, start, end: p.pos }
+    return { type, name, attributes, start, end: p.pos }
 }
 
 /**
@@ -39,7 +41,7 @@ export function parseElement(p) {
  * @param {Parser} p
  * @returns
  */
-export function parseFragment(p, allowStyle = false) {
+export function parseFragment(p, allowScript = false, allowStyle = false) {
     const nodes = []
 
     p.skipWhitespaces()
@@ -50,12 +52,14 @@ export function parseFragment(p, allowStyle = false) {
         switch (punctToken?.type) {
             case TokenTypes.lte:
                 if (nameToken?.value === 'script') {
-                    throw new Error('invalid script position')
-                }
-                if (nameToken?.value === 'style' && !allowStyle) {
-                    throw new Error('invalid style position')
+                    if (!allowScript) throw new Error('invalid script position')
+
+                    nodes.push(parseScript(p))
+                    break
                 }
                 if (nameToken?.value === 'style') {
+                    if (!allowStyle) throw new Error('invalid style position')
+
                     nodes.push(parseStyle(p))
                     break
                 }

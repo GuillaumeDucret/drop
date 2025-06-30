@@ -17,7 +17,7 @@ export function Program(node, ctx) {
 
     if (!ctx.state.analysis.hasDefineCustomElement) {
         const stmt = b.defineCustomElement(
-            ctx.state.options.customElementName ?? 'my-component',
+            ctx.state.context.customElementName ?? 'my-component',
             ctx.state.analysis.customElementClassName ?? 'Component'
         )
         stmts.push(stmt)

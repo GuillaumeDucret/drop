@@ -62,6 +62,7 @@ function name(code) {
 function text(code) {
     if (code === 10) return true
     if (code === 32) return true
+    if (code === 47) return true
     if (code < 48) return false
     if (code < 58) return true
     if (code < 65) return false

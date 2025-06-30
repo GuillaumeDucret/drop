@@ -1,62 +1,85 @@
 #! /usr/bin/env node
 
 import path from 'path'
-import { readFileSync, watch as watchDir, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { watch as watchDir, existsSync } from 'fs'
 import { startDevServer } from '@web/dev-server'
-import { compile } from '../compiler/index.js'
 import { walkDir } from '../utils/files.js'
 import * as argv from '../utils/argv.js'
+import { serve } from './serve.js'
+import { buildIndex, buildModule, buildRouter } from './build.js'
 
 const command = argv.command()
 
 const rootPath = path.resolve(argv.option('root')) ?? process.cwd()
 const srcDirPath = path.join(rootPath, argv.option('srcDir') ?? './src')
 const outDirPath = path.join(rootPath, argv.option('outDir') ?? './wc')
+const routesDirPath = path.join(srcDirPath, argv.option('routesDir') ?? './routes')
+
+const hasRoutes = existsSync(routesDirPath)
 
 switch (command) {
     case 'build':
         build()
         break
     default:
-        build()
-        watch()
+        watch(build())
+        start()
         break
 }
 
 function build() {
+    const registry = {}
+
     walkDir(srcDirPath, {}, (entry) => {
-        if (!entry.name.endsWith('.html')) return
-        if (entry.name === 'index.html') return
+        if (entry.name === 'index.html') {
+            if (!hasRoutes) return
 
-        const srcFilePath = path.join(entry.parentPath, entry.name)
-        const out = resolveOut(srcFilePath)
-
-        const source = readFileSync(srcFilePath, { encoding: 'utf8' })
-        const result = compile(source, out)
-
-        if (!existsSync(out.parentPath)) {
-            mkdirSync(out.parentPath, { recursive: true })
+            const srcFilePath = path.join(entry.parentPath, entry.name)
+            const index = buildIndex(resolve(srcFilePath))
+            registry[index.ref] = index
+            return
         }
-        writeFileSync(out.filePath, result.code)
+
+        if (entry.name.endsWith('.html')) {
+            const srcFilePath = path.join(entry.parentPath, entry.name)
+            const module = buildModule(resolve(srcFilePath, true))
+            registry[module.ref] = module
+            return
+        }
+    })
+
+    if (hasRoutes) {
+        buildRouter(registry, outDirPath)
+    }
+    return registry
+}
+
+function watch(registry) {
+    watchDir(srcDirPath, { recursive: true }, (event, fileName) => {
+        if (fileName.endsWith('index.html')) {
+            if (!hasRoutes) return
+
+            const srcFilePath = path.join(srcDirPath, fileName)
+            const index = buildIndex(resolve(srcFilePath))
+            registry[index.ref] = index
+            return
+        }
+
+        if (fileName.endsWith('.html')) {
+            const srcFilePath = path.join(srcDirPath, fileName)
+            const module = buildModule(resolve(srcFilePath, true))
+            registry[module.ref] = module
+            return
+        }
     })
 }
 
-function watch() {
-    watchDir(srcDirPath, { recursive: true }, (_, fileName) => {
-        if (!fileName.endsWith('.html')) return
-        if (fileName.endsWith('index.html')) return
+function start() {
+    const plugins = []
 
-        const srcFilePath = path.join(srcDirPath, fileName)
-        const out = resolveOut(srcFilePath)
-
-        const source = readFileSync(srcFilePath, { encoding: 'utf8' })
-        const result = compile(source, out)
-
-        if (!existsSync(out.parentPath)) {
-            mkdirSync(out.parentPath, { recursive: true })
-        }
-        writeFileSync(out.filePath, result.code)
-    })
+    if (hasRoutes) {
+        plugins.push(serve(outDirPath))
+    }
 
     startDevServer({
         config: {
@@ -64,28 +87,65 @@ function watch() {
             port: 3000,
             watch: true,
             open: true,
-            nodeResolve: true
+            nodeResolve: true,
+            plugins
         },
         readCliArgs: false,
         readFileConfig: false
     })
 }
 
-function resolveOut(srcFilePath) {
+function resolve(srcFilePath, isModule) {
     const srcFileName = path.basename(srcFilePath)
     const srcParentPath = path.dirname(srcFilePath)
 
     const parentPath = path.join(outDirPath, path.relative(srcDirPath, srcParentPath))
     const fileName = srcFileName.replace('.html', '.js')
     const filePath = path.join(parentPath, fileName)
-    const importShift = path.relative(parentPath, srcParentPath)
-    const customElementName = path.basename(fileName, '.js')
+
+    const ref = path.relative(srcDirPath, srcFilePath)
+    let routerImport = `./${path.relative(outDirPath, filePath)}`
+
+    if (isModule) {
+        const importShift = path.relative(parentPath, srcParentPath)
+        const customElementName = path.basename(fileName, '.js')
+
+        let route = path.relative(routesDirPath, srcParentPath)
+        route = route.startsWith('..') ? undefined : `/${route}`
+        routerImport = !!route ? routerImport : undefined
+        const isPage = !!route && srcFileName === 'page.html'
+        const isLayout = !!route && srcFileName === 'layout.html'
+
+        return {
+            ref,
+            importShift,
+            customElementName,
+            route,
+            isPage,
+            isLayout,
+            routerImport,
+            src: {
+                filePath: srcFilePath
+            },
+            out: {
+                parentPath,
+                fileName,
+                filePath
+            }
+        }
+    }
 
     return {
-        parentPath,
-        fileName,
-        filePath,
-        importShift,
-        customElementName
+        ref,
+        isIndex: true,
+        routerImport,
+        src: {
+            filePath: srcFilePath
+        },
+        out: {
+            parentPath,
+            fileName,
+            filePath
+        }
     }
 }

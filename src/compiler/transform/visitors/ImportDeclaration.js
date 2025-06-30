@@ -1,13 +1,13 @@
 import path from 'path'
 
 export function ImportDeclaration(node, ctx) {
-    if (ctx.state.options.importShift && node.source.value[0] === '.') {
+    if (ctx.state.context.importShift && node.source.value[0] === '.') {
 
 console.log('shift import')
-console.log(ctx.state.options.importShift)
+console.log(ctx.state.context.importShift)
 
 
-        const value = path.join(ctx.state.options.importShift, node.source.value)
+        const value = path.join(ctx.state.context.importShift, node.source.value)
 
 console.log(value)        
         const raw = undefined

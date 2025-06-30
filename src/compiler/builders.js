@@ -92,12 +92,77 @@ export function arrowFunc(body) {
     }
 }
 
+export function importNamespace(local, source) {
+    return {
+        type: 'ImportDeclaration',
+        specifiers: [
+            {
+                type: 'ImportNamespaceSpecifier',
+                local
+            }
+        ],
+        source: {
+            type: 'Literal',
+            value: source
+        },
+        attributes: []
+    }
+}
+
+export function importSpecifier(name, source) {
+    return {
+        type: 'ImportDeclaration',
+        specifiers: [
+            {
+                type: 'ImportSpecifier',
+                imported: {
+                    type: 'Identifier',
+                    name
+                },
+                local: {
+                    type: 'Identifier',
+                    name
+                }
+            }
+        ],
+        source: {
+            type: 'Literal',
+            value: source
+        },
+        attributes: []
+    }
+}
+
+export function property(key, value) {
+    if (typeof key === 'string') {
+        key = { type: 'Identifier', name: key }
+    }
+
+    return { type: 'Property', key, value }
+}
+
+export function object() {
+    return { type: 'ObjectExpression', properties: [] }
+}
+
 export function id(name) {
     return { type: 'Identifier', name }
 }
 
 export function thisExp() {
     return { type: 'ThisExpression' }
+}
+
+export function exportDec(declaration) {
+    return { type: 'ExportNamedDeclaration', declaration }
+}
+
+export function returnStmt(argument) {
+    return { type: 'ReturnStatement', argument }
+}
+
+export function program(body = []) {
+    return { type: 'Program', body }
 }
 
 //
@@ -346,6 +411,33 @@ export function connectedCallback(body = []) {
                 type: 'BlockStatement',
                 body
             }
+        }
+    }
+}
+
+export function render(body = []) {
+    return {
+        type: 'FunctionDeclaration',
+        id: {
+            type: 'Identifier',
+            name: 'render'
+        },
+        expression: false,
+        generator: false,
+        async: false,
+        params: [
+            {
+                type: 'Identifier',
+                name: 'data'
+            },
+            {
+                type: 'Identifier',
+                name: 'slot'
+            }
+        ],
+        body: {
+            type: 'BlockStatement',
+            body
         }
     }
 }

@@ -16,7 +16,7 @@ export function parseTemplate(p) {
     const attributes = parseAttributes(p)
     p.expectToken([TokenTypes.gte])
 
-    const fragment = parseFragment(p, true)
+    const fragment = parseFragment(p, true, true)
 
     p.expectToken([TokenTypes.lteSlash])
     p.expectToken([TokenTypes.name])
