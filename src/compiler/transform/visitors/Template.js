@@ -1,5 +1,6 @@
 export function Template(_, ctx) {
     const state = {
+        ...ctx.state,
         css: '',
         template: [],
         effects: [],
@@ -7,8 +8,7 @@ export function Template(_, ctx) {
         init: {
             elem: [],
             text: []
-        },
-        analysis: ctx.state.analysis
+        }
     }
 
     ctx.next(state)

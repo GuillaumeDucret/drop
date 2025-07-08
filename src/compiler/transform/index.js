@@ -11,6 +11,7 @@ import { Style } from './visitors/Style.js'
 import { Attribute } from './visitors/Attribute.js'
 import { ClassBody } from './visitors/ClassBody.js'
 import { ImportDeclaration } from './visitors/ImportDeclaration.js'
+import { CssTree, Selector } from './visitors/Selector.js'
 
 const templateVisitors = {
     Template,
@@ -20,7 +21,9 @@ const templateVisitors = {
     Text,
     Fragment,
     Style,
-    Attribute
+    Attribute,
+    Selector,
+    ...CssTree
 }
 
 const scriptVisitors = {

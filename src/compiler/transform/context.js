@@ -45,3 +45,7 @@ function position(fragment, node) {
     }
     return position
 }
+
+export function getElement(ctx) {
+    return ctx.path.at(-1)
+}

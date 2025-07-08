@@ -7,6 +7,7 @@ import { walkDir } from '../utils/files.js'
 import * as argv from '../utils/argv.js'
 import { serve } from './serve.js'
 import { buildIndex, buildModule, buildRouter } from './build.js'
+import { hash } from '../utils/misc.js'
 
 const command = argv.command()
 
@@ -109,6 +110,7 @@ function resolve(srcFilePath, isModule) {
     if (isModule) {
         const importShift = path.relative(parentPath, srcParentPath)
         const customElementName = path.basename(fileName, '.js')
+        const srcHash = hash(srcFilePath)
 
         let route = path.relative(routesDirPath, srcParentPath)
         route = route.startsWith('..') ? undefined : `/${route}`
@@ -124,6 +126,7 @@ function resolve(srcFilePath, isModule) {
             isPage,
             isLayout,
             routerImport,
+            hash: srcHash,
             src: {
                 filePath: srcFilePath
             },

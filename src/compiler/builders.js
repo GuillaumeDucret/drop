@@ -462,3 +462,19 @@ export function symbol(id) {
         optional: false
     }
 }
+
+// html
+
+export function attribute(name, value) {
+    if (typeof value === 'string') {
+        value = [{ type: 'Text', data: value }]
+    }
+
+    return { type: 'Attribute', name, value }
+}
+
+// css
+
+export function classSelector(name) {
+    return { type: 'ClassSelector', name }
+}

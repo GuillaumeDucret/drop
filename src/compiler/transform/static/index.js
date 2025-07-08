@@ -8,6 +8,7 @@ import { SlotElement } from './visitors/SlotElement.js'
 import { Attribute } from './visitors/Attribute.js'
 import { Style } from './visitors/Style.js'
 import { Script } from './visitors/Script.js'
+import { CssTree, Selector } from '../visitors/Selector.js'
 
 const templateVisitors = {
     Attribute,
@@ -17,7 +18,10 @@ const templateVisitors = {
     ExpressionTag,
     Template,
     Style,
-    Script
+    Script,
+    // common visitors
+    Selector,
+    ...CssTree
 }
 
 const scriptVisitors = {
