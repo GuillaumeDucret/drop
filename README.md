@@ -110,7 +110,7 @@ Instead, DROP encourages combining traditional server rendering with web compone
 git clone git@github.com:GuillaumeDucret/drop.git
 cd ./drop
 npm i
-npm run examples
+npm run examples:counter
 
 ```
 

@@ -7,10 +7,10 @@
 </script>
 
 <template static>
-    <div class="{data.welcome}">
+    <div>
         <menu>
-            <h1>Menu</h1>
-            <ul>
+            <h1 id="title">Menu</h1>
+            <ul class="test">
                 <li><a href="/pages/1">Page 1</a></li>
                 <li><a href="/pages/2">Page 2</a></li>
             </ul>
@@ -34,7 +34,7 @@
         h1 {
             cursor: pointer;
         }
-        ul {
+        ul.test {
             list-style-type: none;
         }
         a {

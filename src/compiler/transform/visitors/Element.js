@@ -2,8 +2,8 @@ import * as b from '../../builders.js'
 
 export function Element(node, ctx) {
     let attributes = node.attributes
-    if (node.metadata.scoped && !node.metadata.hasClass) {
-        attributes = [...attributes, b.attribute('class', '')]
+    if (node.metadata?.isScoped && !node.metadata?.hasClass) {
+        attributes = [...attributes, b.attribute('class', '', { isScoped: true })]
     }
 
     ctx.state.template.push(`<${node.name}`)

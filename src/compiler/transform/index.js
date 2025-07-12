@@ -12,6 +12,7 @@ import { Attribute } from './visitors/Attribute.js'
 import { ClassBody } from './visitors/ClassBody.js'
 import { ImportDeclaration } from './visitors/ImportDeclaration.js'
 import { CssTree, Selector } from './visitors/Selector.js'
+import { CallExpression } from './visitors/CallExpression.js'
 
 const templateVisitors = {
     Template,
@@ -22,6 +23,7 @@ const templateVisitors = {
     Fragment,
     Style,
     Attribute,
+    CallExpression,
     Selector,
     ...CssTree
 }
@@ -30,7 +32,8 @@ const scriptVisitors = {
     Program,
     MethodDefinition,
     ClassBody,
-    ImportDeclaration
+    ImportDeclaration,
+    CallExpression
 }
 
 export function transform(ast, analysis, context) {

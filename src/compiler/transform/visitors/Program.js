@@ -3,18 +3,15 @@ import * as b from '../../builders.js'
 export function Program(node, ctx) {
     node = ctx.next() ?? node
 
+    // html template
+    const template = ctx.state.template.template.join('')
+    const stmt1 = b.declaration('TEMPLATE', b.literal(template))
+
+    // style
+    const style = ctx.state.template.css ? `<style>${ctx.state.template.css}</style>` : ''
+    const stmt2 = b.declaration('STYLE', b.literal(style))
+
     const stmts = []
-    if (ctx.state.template.template.length > 0) {
-        const stmt = b.declaration('TEMPLATE', b.literal(ctx.state.template.template.join('')))
-        stmts.push(stmt)
-    }
-
-    if (ctx.state.template.css) {
-        const style = `<style>${ctx.state.template.css}</style>`
-        const stmt = b.declaration('STYLE', b.literal(style))
-        stmts.push(stmt)
-    }
-
     if (!ctx.state.analysis.hasDefineCustomElement) {
         const stmt = b.defineCustomElement(
             ctx.state.context.customElementName ?? 'my-component',
@@ -23,7 +20,5 @@ export function Program(node, ctx) {
         stmts.push(stmt)
     }
 
-    if (stmts.length > 0) {
-        return { ...node, body: [...node.body, ...stmts] }
-    }
+    return { ...node, body: [...node.body, stmt1, stmt2, ...stmts] }
 }

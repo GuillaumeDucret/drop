@@ -294,6 +294,21 @@ export function defineCustomElement(elementName, className) {
     }
 }
 
+export function shadow() {
+    return {
+        type: 'MemberExpression',
+        object: {
+            type: 'ThisExpression'
+        },
+        property: {
+            type: 'Identifier',
+            name: 'shadow'
+        },
+        computed: false,
+        optional: false
+    }
+}
+
 export function attachShadow() {
     return {
         type: 'CallExpression',
@@ -465,12 +480,16 @@ export function symbol(id) {
 
 // html
 
-export function attribute(name, value) {
+export function attribute(name, value, metadata) {
     if (typeof value === 'string') {
         value = [{ type: 'Text', data: value }]
     }
 
-    return { type: 'Attribute', name, value }
+    return { type: 'Attribute', name, value, metadata }
+}
+
+export function text(data) {
+    return { type: 'Text', data }
 }
 
 // css

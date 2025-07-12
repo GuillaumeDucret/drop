@@ -1,12 +1,30 @@
-import { getElement, nextElementId, pathStmt } from '../context.js'
+import { nextElementId, pathStmt } from '../context.js'
 import * as b from '../../builders.js'
 import { clx } from '../../css.js'
 
 export function Attribute(node, ctx) {
+    let value = node.value
+    if (node.name === 'id' && node.metadata?.isScoped) {
+        if (value[0].type === 'Text') {
+            value = [b.text(`${value[0].data}-${ctx.state.context.hash}`)]
+        } else {
+            value = [...value, b.text(`-${ctx.state.context.hash}`)]
+        }
+    }
+    if (node.name === 'class' && node.metadata?.isScoped) {
+        if (value[0].type === 'Text') {
+            value = [b.text(clx(value[0].data, `drop-${ctx.state.context.hash}`))]
+        } else {
+            value = [...value, b.text(` drop-${ctx.state.context.hash}`)]
+        }
+    }
+
     const text = []
     const expressions = []
 
-    ctx.visit(node.value, { ...ctx.state, text, expressions })
+    for (const val of value) {
+        ctx.visit(val, { ...ctx.state, text, expressions })
+    }
 
     if (expressions.length > 0) {
         // expression attribute
@@ -20,24 +38,11 @@ export function Attribute(node, ctx) {
             return
         }
 
-        if (node.name === 'class') {
-            const val = b.binary('+', expressions[0], b.literal(` drop-${ctx.state.context.hash}`))
-            const stmt = b.effect([b.setAttribute(rootId, node.name, val)])
-            ctx.state.effects.push(stmt)
-            return
-        }
-
-        const stmt = b.effect([b.setAttribute(rootId, node.name, expressions[0])])
+        const stmt = b.effect([b.setAttribute(rootId, node.name, b.template(text, expressions))])
         ctx.state.effects.push(stmt)
         return
     }
 
     // text attribute
-
-    if (node.name === 'class' && getElement(ctx).metadata.scoped) {
-        ctx.state.template.push(` ${node.name}="${clx(text[0], `drop-${ctx.state.context.hash}`)}"`)
-        return
-    }
-
     ctx.state.template.push(` ${node.name}="${text[0] ?? 'true'}"`)
 }

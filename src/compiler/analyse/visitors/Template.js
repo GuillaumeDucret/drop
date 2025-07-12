@@ -1,7 +1,8 @@
 export function Template(node, ctx) {
+    node.metadata = {elementIds: []}
     ctx.next()
 
-    if (node.attributes.find((a) => a.name === 'static' && a.value)) {
-        ctx.state.isStatic = true
-    }
+    const isStatic = node.attributes.find((a) => a.name === 'static' && a.value) ?? false
+
+    ctx.state.isStatic = isStatic
 }

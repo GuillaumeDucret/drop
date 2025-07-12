@@ -1,10 +1,12 @@
 import * as b from '../../builders.js'
 
 export function MethodDefinition(node, ctx) {
+    ctx.next()
+
     if (node.key.name === 'connectedCallback') {
         const stmts1 = [
-            b.declaration('root', b.attachShadow()),
-            b.assignment(b.innerHTML('root'), b.binary('+', b.id('TEMPLATE'), b.id('STYLE')))
+            b.assignment(b.shadow(), b.attachShadow()),
+            b.assignment(b.innerHTML(b.shadow()), b.binary('+', b.id('TEMPLATE'), b.id('STYLE')))
         ]
 
         const stmts2 = [

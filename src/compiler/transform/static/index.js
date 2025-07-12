@@ -9,6 +9,7 @@ import { Attribute } from './visitors/Attribute.js'
 import { Style } from './visitors/Style.js'
 import { Script } from './visitors/Script.js'
 import { CssTree, Selector } from '../visitors/Selector.js'
+import { CallExpression } from '../visitors/CallExpression.js'
 
 const templateVisitors = {
     Attribute,
@@ -19,6 +20,7 @@ const templateVisitors = {
     Template,
     Style,
     Script,
+    CallExpression,
     // common visitors
     Selector,
     ...CssTree

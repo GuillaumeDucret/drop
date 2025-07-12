@@ -9,6 +9,9 @@
 
         increment(inc = 1) {
             this.count.value += inc
+
+            const button = this.shadow.querySelector('button')
+            button.style.color = 'red'
         }
     }
 </script>

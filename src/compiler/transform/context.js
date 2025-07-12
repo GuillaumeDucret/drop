@@ -15,7 +15,7 @@ export function pathStmt(ctx) {
     for (const node of ctx.path) {
         switch (node.type) {
             case 'Fragment':
-                stmt ??= b.id('root')
+                stmt ??= b.shadow()
                 fragment = node
                 break
             case 'Element':

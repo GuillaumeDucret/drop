@@ -3,8 +3,8 @@ import { append } from '../../../../utils/misc.js'
 
 export function Element(node, ctx) {
     let attributes = node.attributes
-    if (node.metadata.scoped && !node.metadata.hasClass) {
-        attributes = [...attributes, b.attribute('class', '')]
+    if (node.metadata?.isScoped && !node.metadata?.hasClass) {
+        attributes = [...attributes, b.attribute('class', '', { isScoped: true })]
     }
 
     append(ctx.state.text, `<${node.name}`)

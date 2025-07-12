@@ -31,3 +31,23 @@ export function customElements(node) {
 export function define(node) {
     return node.type === 'Identifier' && node.name === 'define'
 }
+
+export function getElementById(node) {
+    return (
+        node.type === 'CallExpression' &&
+        node.callee.type === 'MemberExpression' &&
+        node.callee.object.type === 'Identifier' &&
+        node.callee.object.name === 'document' &&
+        node.callee.property.type === 'Identifier' &&
+        node.callee.property.name === 'getElementById'
+    )
+}
+
+export function querySelector(node) {
+    return (
+        node.type === 'CallExpression' &&
+        node.callee.type === 'MemberExpression' &&
+        node.callee.property.type === 'Identifier' &&
+        node.callee.property.name === 'querySelector'
+    )
+}
