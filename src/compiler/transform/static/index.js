@@ -11,6 +11,7 @@ import { Script } from './visitors/Script.js'
 import { CssTree, Selector } from '../visitors/Selector.js'
 import { CallExpression } from '../visitors/CallExpression.js'
 import { IfBlock } from './visitors/IfBlock.js'
+import { EachBlock } from './visitors/EachBlock.js'
 
 const templateVisitors = {
     Attribute,
@@ -23,6 +24,7 @@ const templateVisitors = {
     Script,
     CallExpression,
     IfBlock,
+    EachBlock,
     // common visitors
     Selector,
     ...CssTree

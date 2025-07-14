@@ -1,4 +1,4 @@
-export function declaration(id, init) {
+export function declaration(id, init, kind = 'const') {
     if (typeof id === 'string') {
         id = { type: 'Identifier', name: id }
     }
@@ -12,7 +12,7 @@ export function declaration(id, init) {
                 init
             }
         ],
-        kind: 'const'
+        kind
     }
 }
 
@@ -47,12 +47,12 @@ export function template(text, expressions) {
     }
 }
 
-export function assignment(left, right) {
+export function assignment(left, right, operator = '=') {
     return {
         type: 'ExpressionStatement',
         expression: {
             type: 'AssignmentExpression',
-            operator: '=',
+            operator,
             left,
             right
         }
@@ -186,6 +186,29 @@ export function call(callee) {
 
 export function ifStmt(test, consequent, alternate) {
     return { type: 'IfStatement', test, consequent, alternate }
+}
+
+export function forStmt(id, right, body) {
+    return {
+        type: 'ForOfStatement',
+        await: false,
+        left: {
+            type: 'VariableDeclaration',
+            declarations: [
+                {
+                    type: 'VariableDeclarator',
+                    id,
+                    init: null
+                }
+            ],
+            kind: 'const'
+        },
+        right,
+        body: {
+            type: 'BlockStatement',
+            body
+        }
+    }
 }
 
 //

@@ -9,10 +9,9 @@ import { TokenTypes } from './tokentype.js'
  */
 export function parseExpressionTag(p) {
     p.expectToken([TokenTypes.braceL])
-
-    const start = p.pos
-    skipCode(p)
-    const expression = parseExpressionAt(p.input.slice(start, p.pos), 0, { ecmaVersion: 2020 })
+    p.skipWhitespaces()
+    const expression = parseExpression(p)
+    p.skipWhitespaces()
     p.expectToken([TokenTypes.braceR])
 
     return { type: 'ExpressionTag', expression }
@@ -25,10 +24,9 @@ export function parseExpressionTag(p) {
  */
 export function parseAttributeExpressionTag(p) {
     p.expectToken([TokenTypes.quoteBraceL, TokenTypes.doubleQuoteBraceL])
-
-    const start = p.pos
-    skipAttributeCode(p)
-    const expression = parseExpressionAt(p.input.slice(start, p.pos), 0, { ecmaVersion: 2020 })
+    p.skipWhitespaces()
+    const expression = parseExpression(p)
+    p.skipWhitespaces()
     p.expectToken([TokenTypes.braceRQuote, TokenTypes.braceRDoubleQuote])
 
     return { type: 'ExpressionTag', expression }
@@ -37,22 +35,10 @@ export function parseAttributeExpressionTag(p) {
 /**
  *
  * @param {Parser} p
+ * @returns
  */
-function skipCode(p) {
-    while (p.pos < p.input.length) {
-        if (p.isCharToken(TokenTypes.braceR)) break
-        p.pos++
-    }
-}
-
-/**
- *
- * @param {Parser} p
- */
-function skipAttributeCode(p) {
-    while (p.pos < p.input.length) {
-        if (p.isCharToken(TokenTypes.braceRQuote) || p.isCharToken(TokenTypes.braceRDoubleQuote))
-            break
-        p.pos++
-    }
+function parseExpression(p) {
+    const node = parseExpressionAt(p.input, p.pos, { ecmaVersion: 2020 })
+    p.pos = node.end
+    return node
 }

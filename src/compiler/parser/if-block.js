@@ -19,7 +19,7 @@ export function parseIfBlock(p, elseif = false) {
         p.expectToken([TokenTypes.name])
     }
 
-    const test = parseTest(p)
+    const test = parseExpression(p)
     p.expectToken([TokenTypes.braceR])
     const consequent = parseFragment(p)
 
@@ -28,7 +28,7 @@ export function parseIfBlock(p, elseif = false) {
     const whitespaceToken = p.peakWhitespaces(nameToken1)
     const nameToken2 = p.peakToken([TokenTypes.name], whitespaceToken)
 
-    let alternate = null
+    let alternate
     if (nameToken1?.value === 'else' && nameToken2?.value === 'if') {
         alternate = parseIfBlock(p, true)
     } else if (nameToken1?.value === 'else') {
@@ -60,20 +60,8 @@ export function parseIfBlock(p, elseif = false) {
  * @param {Parser} p
  * @returns
  */
-function parseTest(p) {
-    p.skipWhitespaces()
-    const start = p.pos
-    skipCode(p)
-    return parseExpressionAt(p.input.slice(start, p.pos), 0, { ecmaVersion: 2020 })
-}
-
-/**
- *
- * @param {Parser} p
- */
-function skipCode(p) {
-    while (p.pos < p.input.length) {
-        if (p.isCharToken(TokenTypes.braceR)) break
-        p.pos++
-    }
+function parseExpression(p) {
+    const node = parseExpressionAt(p.input, p.pos, { ecmaVersion: 2020 })
+    p.pos = node.end
+    return node
 }

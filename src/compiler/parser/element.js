@@ -1,5 +1,6 @@
 import { parseAttributes } from './attributes.js'
-import { parseIfBlock } from './block.js'
+import { parseIfBlock } from './if-block.js'
+import { parseEachBlock } from './each-block.js'
 import { parseExpressionTag } from './expression.js'
 import { Parser } from './parser.js'
 import { parseScript } from './script.js'
@@ -69,6 +70,10 @@ export function parseFragment(p, allowScript = false, allowStyle = false) {
             case TokenTypes.braceLHash:
                 if (nameToken?.value === 'if') {
                     nodes.push(parseIfBlock(p))
+                    break
+                }
+                if (nameToken?.value === 'each') {
+                    nodes.push(parseEachBlock(p))
                     break
                 }
 
