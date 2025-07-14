@@ -165,6 +165,29 @@ export function program(body = []) {
     return { type: 'Program', body }
 }
 
+export function func(id, body = []) {
+    return {
+        type: 'FunctionDeclaration',
+        id,
+        expression: false,
+        generator: false,
+        async: false,
+        params: [],
+        body: {
+            type: 'BlockStatement',
+            body
+        }
+    }
+}
+
+export function call(callee) {
+    return { type: 'CallExpression', callee, arguments: [], optional: false }
+}
+
+export function ifStmt(test, consequent, alternate) {
+    return { type: 'IfStatement', test, consequent, alternate }
+}
+
 //
 // advanced builders
 //

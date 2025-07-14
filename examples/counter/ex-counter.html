@@ -18,6 +18,9 @@
 
 <template>
     <div>
+        {#if count > 2}
+        <span>aa</span>
+        {/if}
         <button onclick="{increment()}">counter is {count}</button>
     </div>
     <style>

@@ -5,7 +5,16 @@
 </script>
 
 <template static>
-    <article>{data.welcome} page {data.pageId}</article>
+    <article>
+        <span>{data.welcome} page {data.pageId} </span>
+        {#if data.pageId === '1'}
+        <span> [ONE]</span>
+        {:else if data.pageId === '2'}
+        <span> [TWO]</span>
+        {:else}
+        <span> [ANY]</span>
+        {/if}
+    </article>
     <style>
         article {
             flex: 1;

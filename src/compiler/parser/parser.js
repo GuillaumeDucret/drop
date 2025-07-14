@@ -191,6 +191,31 @@ export class Parser {
         }
     }
 
+    peakWhitespaces(after) {
+        if (after === null) return null
+
+        let pos = after?.end ?? this.pos
+        const start = pos
+
+        while (this.pos < this.input.length) {
+            const code = this.input.charCodeAt(pos)
+            if (code === 10 || code === 32) {
+                pos++
+                continue
+            }
+            break
+        }
+
+        if (pos !== start) {
+            return {
+                type: { label: 'whitespace' },
+                start,
+                end: pos
+            }
+        }
+        return null
+    }
+
     skipWhitespaces() {
         while (this.pos < this.input.length) {
             const code = this.input.charCodeAt(this.pos)

@@ -8,6 +8,10 @@ export function nextTextId(ctx) {
     return b.id(`text_${ctx.state.init.text.length + 1}`)
 }
 
+export function nextBlockId(ctx) {
+    return b.id(`block_${ctx.state.blocks.length + 1}`)
+}
+
 export function pathStmt(ctx) {
     let stmt
     let fragment

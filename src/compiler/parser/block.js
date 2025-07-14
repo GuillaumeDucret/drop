@@ -1,3 +1,4 @@
+import { parseExpressionAt } from 'acorn'
 import { parseFragment } from './element.js'
 import { Parser } from './parser.js'
 import { TokenTypes } from './tokentype.js'
@@ -7,35 +8,72 @@ import { TokenTypes } from './tokentype.js'
  * @param {Parser} p
  * @returns
  */
-export function parseIfBlock(p) {
-    const node = { type: 'IfBlock', start: p.pos }
-
-    p.expectToken([TokenTypes.braceLHash])
+export function parseIfBlock(p, elseif = false) {
+    const start = p.pos
+    p.expectToken([TokenTypes.braceLHash, TokenTypes.braceLColumn])
     p.expectToken([TokenTypes.name])
-    node.name = p.value
-    p.skipWhitespaces()
+    const name = p.value
+
+    if (elseif) {
+        p.skipWhitespaces()
+        p.expectToken([TokenTypes.name])
+    }
+
+    const test = parseTest(p)
     p.expectToken([TokenTypes.braceR])
-    node.consequent = parseFragment(p)
+    const consequent = parseFragment(p)
 
-    const token = p.peakToken([TokenTypes.braceLSlash, TokenTypes.braceLColumn])
+    const punctToken = p.peakToken([TokenTypes.braceLColumn])
+    const nameToken1 = p.peakToken([TokenTypes.name], punctToken)
+    const whitespaceToken = p.peakWhitespaces(nameToken1)
+    const nameToken2 = p.peakToken([TokenTypes.name], whitespaceToken)
 
-    if (token.type === TokenTypes.braceLColumn) {
+    let alternate = null
+    if (nameToken1?.value === 'else' && nameToken2?.value === 'if') {
+        alternate = parseIfBlock(p, true)
+    } else if (nameToken1?.value === 'else') {
         p.expectToken([TokenTypes.braceLColumn])
         p.expectToken([TokenTypes.name])
         p.skipWhitespaces()
         p.expectToken([TokenTypes.braceR])
 
-        node.alternate = parseFragment(p)
+        alternate = parseFragment(p)
+    } else if (punctToken) {
+        throw new Error(`unknown block ${nameToken1?.value}`)
     }
 
-    p.expectToken([TokenTypes.braceLSlash])
-    p.expectToken([TokenTypes.name])
-    const blockNameClose = p.value
+    if (!elseif) {
+        p.expectToken([TokenTypes.braceLSlash])
+        p.expectToken([TokenTypes.name])
+        const blockNameClose = p.value
+        p.skipWhitespaces()
+        p.expectToken([TokenTypes.braceR])
+
+        if (name !== blockNameClose) throw new Error('wrong closing tag')
+    }
+
+    return { type: 'IfBlock', elseif, test, consequent, alternate, start, end: p.pos }
+}
+
+/**
+ *
+ * @param {Parser} p
+ * @returns
+ */
+function parseTest(p) {
     p.skipWhitespaces()
-    p.expectToken([TokenTypes.braceR])
+    const start = p.pos
+    skipCode(p)
+    return parseExpressionAt(p.input.slice(start, p.pos), 0, { ecmaVersion: 2020 })
+}
 
-    if (node.name !== blockNameClose) throw new Error('wrong closing tag')
-
-    node.end = p.pos
-    return node
+/**
+ *
+ * @param {Parser} p
+ */
+function skipCode(p) {
+    while (p.pos < p.input.length) {
+        if (p.isCharToken(TokenTypes.braceR)) break
+        p.pos++
+    }
 }
