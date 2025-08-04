@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
 import path from 'path'
+import { fileURLToPath } from 'url'
 import { watch as watchDir, existsSync } from 'fs'
 import { startDevServer } from '@web/dev-server'
 import { walkDir } from '../utils/files.js'
@@ -17,6 +18,10 @@ const outDirPath = path.join(rootPath, argv.option('outDir') ?? './wc')
 const routesDirPath = path.join(srcDirPath, argv.option('routesDir') ?? './routes')
 
 const hasRoutes = existsSync(routesDirPath)
+
+let binDirPath = path.dirname(fileURLToPath(import.meta.url))
+binDirPath = path.relative(process.cwd(), path.join(binDirPath, '../..')) ? undefined : binDirPath
+const runtimeDirPath = binDirPath ? path.join(binDirPath, '../runtime/index.js') : undefined
 
 switch (command) {
     case 'build':
@@ -108,6 +113,7 @@ function resolve(srcFilePath, isModule) {
     let routerImport = `./${path.relative(outDirPath, filePath)}`
 
     if (isModule) {
+        const runtimeImport = runtimeDirPath ? path.relative(parentPath, runtimeDirPath) : undefined
         const importShift = path.relative(parentPath, srcParentPath)
         const customElementName = path.basename(fileName, '.js')
         const srcHash = hash(srcFilePath)
@@ -120,6 +126,7 @@ function resolve(srcFilePath, isModule) {
 
         return {
             ref,
+            runtimeImport,
             importShift,
             customElementName,
             route,

@@ -30,7 +30,7 @@ export function parseIfBlock(p, elseif = false) {
 
     let alternate
     if (nameToken1?.value === 'else' && nameToken2?.value === 'if') {
-        alternate = parseIfBlock(p, true)
+        alternate = fragment([parseIfBlock(p, true)])
     } else if (nameToken1?.value === 'else') {
         p.expectToken([TokenTypes.braceLColumn])
         p.expectToken([TokenTypes.name])
@@ -64,4 +64,8 @@ function parseExpression(p) {
     const node = parseExpressionAt(p.input, p.pos, { ecmaVersion: 2020 })
     p.pos = node.end
     return node
+}
+
+function fragment(nodes) {
+    return { type: 'Fragment', nodes }
 }

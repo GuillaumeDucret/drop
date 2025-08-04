@@ -340,6 +340,48 @@ export function defineCustomElement(elementName, className) {
     }
 }
 
+export function createElement(value) {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'Identifier', name: 'document' },
+            property: { type: 'Identifier', name: 'createElement' },
+            computed: false,
+            optional: false
+        },
+        arguments: [{ type: 'Literal', value }],
+        optional: false
+    }
+}
+
+export function $() {
+    return {
+        type: 'MemberExpression',
+        object: {
+            type: 'ThisExpression'
+        },
+        property: {
+            type: 'Identifier',
+            name: '$'
+        },
+        computed: false,
+        optional: false
+    }
+}
+
+export function $$() {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'Identifier',
+            name: '$$'
+        },
+        arguments: [],
+        optional: false
+    }
+}
+
 export function shadow() {
     return {
         type: 'MemberExpression',
@@ -423,14 +465,103 @@ export function insertAdjacentHTML(object, value) {
     }
 }
 
+export function insertBefore(node, insertNode) {
+    if (typeof node === 'string') {
+        node = { type: 'Identifier', name: node }
+    }
+
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'MemberExpression',
+                    object: node,
+                    property: {
+                        type: 'Identifier',
+                        name: 'parentNode'
+                    },
+                    computed: false,
+                    optional: false
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'insertBefore'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [insertNode, node],
+            optional: false
+        }
+    }
+}
+
+export function appendChild(object, node) {
+    if (typeof node === 'string') {
+        node = { type: 'Identifier', name: node }
+    }
+
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object,
+                property: {
+                    type: 'Identifier',
+                    name: 'appendChild'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [node],
+            optional: false
+        }
+    }
+}
+
+export function dispose(object) {
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object,
+                property: {
+                    type: 'Identifier',
+                    name: 'dispose'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [],
+            optional: false
+        }
+    }
+}
+
 export function effect(body) {
     return {
         type: 'ExpressionStatement',
         expression: {
             type: 'CallExpression',
             callee: {
-                type: 'Identifier',
-                name: 'effect'
+                type: 'MemberExpression',
+                object: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'effect'
+                },
+                computed: false,
+                optional: false
             },
             arguments: [
                 {
@@ -459,6 +590,31 @@ export function connectedCallback(body = []) {
         key: {
             type: 'Identifier',
             name: 'connectedCallback'
+        },
+        kind: 'method',
+        value: {
+            type: 'FunctionExpression',
+            id: null,
+            expression: false,
+            generator: false,
+            async: false,
+            params: [],
+            body: {
+                type: 'BlockStatement',
+                body
+            }
+        }
+    }
+}
+
+export function disconnectedCallback(body = []) {
+    return {
+        type: 'MethodDefinition',
+        static: false,
+        computed: false,
+        key: {
+            type: 'Identifier',
+            name: 'disconnectedCallback'
         },
         kind: 'method',
         value: {
@@ -521,6 +677,183 @@ export function symbol(id) {
         },
         computed: false,
         optional: false
+    }
+}
+
+export function ifBlock(anchor, test, consequent, alternate) {
+    const argumentsStmts = [
+        anchor,
+        {
+            type: 'ArrowFunctionExpression',
+            id: null,
+            expression: true,
+            generator: false,
+            async: false,
+            params: [],
+            body: test
+        },
+        {
+            type: 'ArrowFunctionExpression',
+            id: null,
+            expression: true,
+            generator: false,
+            async: false,
+            params: [
+                { type: 'Identifier', name: '$' },
+                { type: 'Identifier', name: 'anchor' }
+            ],
+            body: { type: 'BlockStatement', body: consequent }
+        }
+    ]
+
+    if (alternate) {
+        argumentsStmts.push({
+            type: 'ArrowFunctionExpression',
+            id: null,
+            expression: true,
+            generator: false,
+            async: false,
+            params: [
+                { type: 'Identifier', name: '$' },
+                { type: 'Identifier', name: 'anchor' }
+            ],
+            body: { type: 'BlockStatement', body: alternate }
+        })
+    }
+
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'ifBlock'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: argumentsStmts,
+            optional: false
+        }
+    }
+}
+
+export function eachBlock(anchor, expression, context, key, body) {
+    const keyStmt = {
+        type: 'ArrowFunctionExpression',
+        id: null,
+        expression: true,
+        generator: false,
+        async: false,
+        params: [
+            {
+                type: 'Identifier',
+                name: 'v'
+            },
+            {
+                type: 'Identifier',
+                name: 'i'
+            }
+        ],
+        body: {
+            type: 'Identifier',
+            name: 'i'
+        }
+    }
+
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'eachBlock'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [
+                anchor,
+                {
+                    type: 'ArrowFunctionExpression',
+                    id: null,
+                    expression: true,
+                    generator: false,
+                    async: false,
+                    params: [],
+                    body: expression
+                },
+                keyStmt,
+                {
+                    type: 'ArrowFunctionExpression',
+                    id: null,
+                    expression: true,
+                    generator: false,
+                    async: false,
+                    params: [
+                        { type: 'Identifier', name: '$' },
+                        { type: 'Identifier', name: 'anchor' },
+                        context
+                    ],
+                    body: { type: 'BlockStatement', body }
+                }
+            ],
+            optional: false
+        }
+    }
+}
+
+export function block(body) {
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'MemberExpression',
+                    object: {
+                        type: 'ThisExpression',
+                    },
+                    property: {
+                        type: 'Identifier',
+                        name: '$'
+                    },
+                    computed: false,
+                    optional: false
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'block'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [
+                {
+                    type: 'ArrowFunctionExpression',
+                    id: null,
+                    expression: true,
+                    generator: false,
+                    async: false,
+                    params: [{ type: 'Identifier', name: '$' }],
+                    body: { type: 'BlockStatement', body }
+                }
+            ],
+            optional: false
+        }
     }
 }
 

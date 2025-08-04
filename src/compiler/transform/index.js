@@ -13,6 +13,8 @@ import { ClassBody } from './visitors/ClassBody.js'
 import { ImportDeclaration } from './visitors/ImportDeclaration.js'
 import { CssTree, Selector } from './visitors/Selector.js'
 import { CallExpression } from './visitors/CallExpression.js'
+import { IfBlock } from './visitors/IfBlock.js'
+import { EachBlock } from './visitors/EachBlock.js'
 
 const templateVisitors = {
     Template,
@@ -24,6 +26,8 @@ const templateVisitors = {
     Style,
     Attribute,
     CallExpression,
+    IfBlock,
+    EachBlock,
     Selector,
     ...CssTree
 }

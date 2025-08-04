@@ -5,6 +5,6 @@ export function Style(node, ctx) {
 
     const css = generate(node.content)
 
-    ctx.state.css = css
+    ctx.state.css.push(css)
     ctx.state.template.push(`<!>`)
 }

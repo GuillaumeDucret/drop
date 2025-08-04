@@ -1,16 +1,24 @@
-export function Template(_, ctx) {
-    const state = {
-        ...ctx.state,
-        css: '',
-        template: [],
-        effects: [],
-        handlers: [],
-        init: {
-            elem: [],
-            text: []
-        }
-    }
+import * as b from '../../builders.js'
 
-    ctx.next(state)
-    return { type: 'TemplateMod', ...state }
+export function Template(_, ctx) {
+    const css = []
+    const template = []
+    const init = { elem: [], text: [] }
+    const effects = []
+    const handlers = []
+    const blocks = []
+
+    ctx.next({ ...ctx.state, css, template, init, effects, handlers, blocks })
+
+    const stmts1 = [
+        b.declaration('template', b.createElement('template')),
+        b.assignment(b.innerHTML('template'), b.binary('+', b.id('TEMPLATE'), b.id('STYLE')))
+    ]
+    const stmts2 = [...init.elem, ...init.text, ...effects, ...handlers, ...blocks]
+    const stmt3 = b.appendChild(b.shadow(), b.member('template', 'content'))
+
+    const bodyStmt = [...stmts1, ...stmts2, stmt3]
+    const block = b.block(bodyStmt)
+
+    return { type: 'TemplateMod', css, template, block }
 }

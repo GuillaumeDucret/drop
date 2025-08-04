@@ -7,6 +7,7 @@ import { Template } from './visitors/Template.js'
 import { Element } from './visitors/Element.js'
 import { CssTree, Selector } from './visitors/Selector.js'
 import { Attribute } from './visitors/Attribute.js'
+import { IfBlock } from './visitors/IfBlock.js'
 
 const visitors = {
     AssignmentExpression,
@@ -16,6 +17,7 @@ const visitors = {
     Template,
     Element,
     Attribute,
+    IfBlock,
     Selector,
     ...CssTree
 }

@@ -1,10 +1,11 @@
 <script type="module">
-    import { signal, effect } from '@webreflection/signal'
+    import { signal } from '../../src/signals/index.js'
 
     class Counter extends HTMLElement {
         constructor() {
             super()
             this.count = signal(0)
+            this.countries = signal(['FR', 'CA'])
         }
 
         increment(inc = 1) {
@@ -12,15 +13,23 @@
 
             const button = this.shadow.querySelector('button')
             button.style.color = 'red'
+
+            this.countries.value = [...this.countries.value, 'US' + this.count.value]
         }
     }
 </script>
 
 <template>
     <div>
-        {#if count > 2}
-        <span>aa</span>
+        <span>cc</span>
+        {#each countries as country }
+        <span>{country}</span>
+        {#if count > 3 && count < 5}
+            <span>LL</span>
+        {:else if count === 2}
+            <span>OO</span>
         {/if}
+        {/each}
         <button onclick="{increment()}">counter is {count}</button>
     </div>
     <style>

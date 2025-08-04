@@ -12,17 +12,28 @@ export function nextBlockId(ctx) {
     return b.id(`block_${ctx.state.blocks.length + 1}`)
 }
 
-export function pathStmt(ctx) {
-    let stmt
-    let fragment
+export function pathStmt(ctx, node) {
+    const subPath = []
 
-    for (const node of ctx.path) {
+    for (const node of ctx.path.toReversed()) {
+        if (node.type === 'IfBlock' || node.type === 'EachBlock' || node.type === 'Template') break
+        subPath.unshift(node)
+    }
+
+    if (node) {
+        subPath.push(node)
+    }
+
+    let stmt = b.member('template', 'content')
+    let fragment
+    for (const node of subPath) {
         switch (node.type) {
             case 'Fragment':
-                stmt ??= b.shadow()
                 fragment = node
                 break
             case 'Element':
+            case 'IfBlock':
+            case 'EachBlock':
                 stmt = b.sibling(b.child(stmt), position(fragment, node))
                 break
         }
