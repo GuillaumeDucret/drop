@@ -19,3 +19,18 @@ export function $$() {
 
     return new Client()
 }
+
+
+$$.init = function(object, name, value) {
+	const set = arguments.length === 2
+
+    if (object.hasOwnProperty(name)) {
+        value = object[name]
+        delete object[name]
+
+		if (set) {
+			object[name] = value
+		}
+    }
+    return value
+}

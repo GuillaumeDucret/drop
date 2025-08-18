@@ -8,6 +8,20 @@ export function getTemplate(ctx) {
     return root.template
 }
 
+export function getProgram(ctx) {
+    const root = ctx.path[0]
+    return root.script.content
+}
+
 export function getScript(ctx) {
     return ctx.path.toReversed().find((n) => n.type === 'Script')
+}
+
+export function isInConstructor(ctx) {
+    for (const node of ctx.path.toReversed()) {
+        if (node.type === 'ArrowFunctionExpression') return false
+        if (node.type === 'FunctionDeclaration') return false
+        if (node.type === 'MethodDefinition') return node.kind === 'constructor'
+    }
+    return false
 }

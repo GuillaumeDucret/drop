@@ -38,7 +38,7 @@ export function parseAttributeExpressionTag(p) {
  * @returns
  */
 function parseExpression(p) {
-    const node = parseExpressionAt(p.input, p.pos, { ecmaVersion: 2020 })
+    const node = parseExpressionAt(p.input, p.pos, { ecmaVersion: 'latest' })
     p.pos = node.end
     return node
 }

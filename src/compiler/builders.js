@@ -77,6 +77,20 @@ export function member(object, property) {
     }
 }
 
+export function thisMember(property) {
+    if (typeof property === 'string') {
+        property = { type: 'Identifier', name: property }
+    }
+
+    return {
+        type: 'MemberExpression',
+        object: { type: 'ThisExpression' },
+        property,
+        computed: false,
+        optional: false
+    }
+}
+
 export function arrowFunc(body) {
     return {
         type: 'ArrowFunctionExpression',
@@ -145,8 +159,15 @@ export function object() {
     return { type: 'ObjectExpression', properties: [] }
 }
 
-export function id(name) {
-    return { type: 'Identifier', name }
+export function id(name, isPrivate = false) {
+    const type = isPrivate ? 'PrivateIdentifier' : 'Identifier'
+
+    if (typeof name === 'string') return { type, name }
+    return { ...name, type }
+}
+
+export function undefined() {
+    return { type: 'Identifier', name: 'undefined' }
 }
 
 export function thisExp() {
@@ -180,12 +201,29 @@ export function func(id, body = []) {
     }
 }
 
+export function array(elements) {
+    elements = elements.map((value) => ({ type: 'Literal', value }))
+
+    return { type: 'ArrayExpression', elements }
+}
+
 export function call(callee) {
     return { type: 'CallExpression', callee, arguments: [], optional: false }
 }
 
 export function ifStmt(test, consequent, alternate) {
-    return { type: 'IfStatement', test, consequent, alternate }
+    return {
+        type: 'IfStatement',
+        test,
+        consequent: {
+            type: 'BlockStatement',
+            body: consequent
+        },
+        alternate: alternate && {
+            type: 'BlockStatement',
+            body: alternate
+        }
+    }
 }
 
 export function forStmt(id, right, body) {
@@ -208,6 +246,15 @@ export function forStmt(id, right, body) {
             type: 'BlockStatement',
             body
         }
+    }
+}
+
+export function unary(operator, argument) {
+    return {
+        type: 'UnaryExpression',
+        operator,
+        prefix: true,
+        argument
     }
 }
 
@@ -283,7 +330,19 @@ export function sibling(object, count) {
     return stmt
 }
 
-export function setAttribute(object, name, value) {
+export function setAttribute(object, attribute, value) {
+    if (typeof object === 'string') {
+        object = { type: 'Identifier', name: object }
+    }
+
+    if (typeof attribute === 'string') {
+        attribute = { type: 'Identifier', name: attribute }
+    }
+
+    if (typeof value === 'string') {
+        value = { type: 'Identifier', name: value }
+    }
+
     return {
         type: 'CallExpression',
         callee: {
@@ -296,13 +355,89 @@ export function setAttribute(object, name, value) {
             computed: false,
             optional: false
         },
-        arguments: [
-            {
-                type: 'Literal',
-                value: name
+        arguments: [attribute, value],
+        optional: false
+    }
+}
+
+export function setProperty(object, property, right) {
+    if (typeof object === 'string') {
+        object = { type: 'Identifier', name: object }
+    }
+
+    if (typeof property === 'string') {
+        property = { type: 'Identifier', name: property }
+    }
+
+    if (typeof right === 'string') {
+        right = { type: 'Identifier', name: right }
+    }
+
+    return {
+        type: 'AssignmentExpression',
+        operator: '=',
+        left: {
+            type: 'MemberExpression',
+            object,
+            property,
+            computed: true,
+            optional: false
+        },
+        right
+    }
+}
+
+export function setSignalProperty(object, property, right) {
+    if (typeof object === 'string') {
+        object = { type: 'Identifier', name: object }
+    }
+
+    if (typeof property === 'string') {
+        property = { type: 'Identifier', name: property }
+    }
+
+    if (typeof right === 'string') {
+        right = { type: 'Identifier', name: right }
+    }
+
+    return {
+        type: 'AssignmentExpression',
+        operator: '=',
+        left: {
+            type: 'MemberExpression',
+            object: {
+                type: 'MemberExpression',
+                object,
+                property,
+                computed: true,
+                optional: false
             },
-            value
-        ],
+            property: { type: 'Identifier', name: 'value' },
+            computed: false,
+            optional: false
+        },
+        right
+    }
+}
+
+export function includes(object, value) {
+    if (typeof value === 'string') {
+        value = { type: 'Identifier', name: value }
+    }
+
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object,
+            property: {
+                type: 'Identifier',
+                name: 'includes'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [value],
         optional: false
     }
 }
@@ -337,6 +472,165 @@ export function defineCustomElement(elementName, className) {
             ],
             optional: false
         }
+    }
+}
+
+export function getCustomElement(value) {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'Identifier',
+                name: 'customElements'
+            },
+            property: {
+                type: 'Identifier',
+                name: 'get'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [
+            {
+                type: 'Literal',
+                value
+            }
+        ],
+        optional: false
+    }
+}
+
+export function $define(object) {
+    if (typeof object === 'string') {
+        object = { type: 'Identifier', name: object }
+    }
+
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object,
+                property: {
+                    type: 'Identifier',
+                    name: '$define'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [],
+            optional: false
+        }
+    }
+}
+
+export function $defineDecl(body) {
+    return {
+        type: 'ExportNamedDeclaration',
+        declaration: {
+            type: 'FunctionDeclaration',
+            id: {
+                type: 'Identifier',
+                name: '$define'
+            },
+            expression: false,
+            generator: false,
+            async: false,
+            params: [],
+            body: {
+                type: 'BlockStatement',
+                body
+            }
+        },
+        specifiers: [],
+        source: null
+    }
+}
+
+export function $set(object, nodeId, attribute, value) {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object,
+            property: {
+                type: 'Identifier',
+                name: '$set'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [
+            nodeId,
+            {
+                type: 'Literal',
+                value: attribute
+            },
+            value
+        ],
+        optional: false
+    }
+}
+
+export function $setDecl(body) {
+    return {
+        type: 'ExportNamedDeclaration',
+        declaration: {
+            type: 'FunctionDeclaration',
+            id: {
+                type: 'Identifier',
+                name: '$set'
+            },
+            expression: false,
+            generator: false,
+            async: false,
+            params: [
+                { type: 'Identifier', name: 'node' },
+                { type: 'Identifier', name: 'attribute' },
+                { type: 'Identifier', name: 'value' }
+            ],
+            body: {
+                type: 'BlockStatement',
+                body
+            }
+        },
+        specifiers: [],
+        source: null
+    }
+}
+
+export function $$init(property, value) {
+    const argumentsStmts = [
+        { type: 'ThisExpression' },
+        {
+            type: 'Literal',
+            value: property
+        }
+    ]
+
+    if (value) {
+        argumentsStmts.push(value)
+    }
+
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'Identifier',
+                name: '$$'
+            },
+            property: {
+                type: 'Identifier',
+                name: 'init'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: argumentsStmts,
+        optional: false
     }
 }
 
@@ -659,7 +953,7 @@ export function render(body = []) {
     }
 }
 
-export function symbol(id) {
+export function signal(id) {
     return {
         type: 'MemberExpression',
         object: {
@@ -825,7 +1119,7 @@ export function block(body) {
                 object: {
                     type: 'MemberExpression',
                     object: {
-                        type: 'ThisExpression',
+                        type: 'ThisExpression'
                     },
                     property: {
                         type: 'Identifier',

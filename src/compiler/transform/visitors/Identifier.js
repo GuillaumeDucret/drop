@@ -1,11 +1,11 @@
 import * as b from '../../builders.js'
 
-export function Identifier(node, ctx) {
-    if (ctx.state.analysis.signals.indexOf(node.name) >= 0) {
-        return b.symbol(node)
+export function Identifier(node) {
+    if (node.metadata?.isSignal) {
+        return b.member(b.thisMember(b.id(node, node.metadata?.isPrivate)), 'value')
     }
 
-    if (ctx.state.analysis.methods.indexOf(node.name) >= 0) {
-        return b.member(b.thisExp(), node)
+    if (node.metadata?.isProperty || node.metadata?.isMethod) {
+        return b.thisMember(b.id(node, node.metadata?.isPrivate))
     }
 }

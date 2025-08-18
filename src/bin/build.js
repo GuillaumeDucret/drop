@@ -28,7 +28,7 @@ export function buildIndex({ src, out, ...context }) {
     return index
 }
 
-export function buildRouter(registry, outDirPath) {
+export function buildRouter(outDirPath, registry) {
     const result = createRouter(registry)
 
     if (!existsSync(outDirPath)) {

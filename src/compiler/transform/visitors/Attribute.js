@@ -1,4 +1,4 @@
-import { nextElementId, pathStmt } from '../context.js'
+import { getModuleId, nextElementId, pathStmt } from '../context.js'
 import * as b from '../../builders.js'
 import { clx } from '../../css.js'
 
@@ -35,6 +35,14 @@ export function Attribute(node, ctx) {
         if (node.name.startsWith('on')) {
             const stmt = b.assignment(b.member(rootId, node.name), b.arrowFunc(expressions[0]))
             ctx.state.handlers.push(stmt)
+            return
+        }
+
+        const module = ctx.state.module
+        if (module) {
+            const moduleId = getModuleId(ctx, module.name)
+            const stmt = b.effect([b.$set(moduleId, rootId, node.name, b.template(text, expressions))])
+            ctx.state.effects.push(stmt)
             return
         }
 

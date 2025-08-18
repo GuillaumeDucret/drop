@@ -1,10 +1,17 @@
 import * as b from '../../builders.js'
+import { getProgram } from '../context.js'
 
 export function MethodDefinition(node, ctx) {
-    ctx.next()
+    node = ctx.next() ?? node
 
     if (node.key.name === 'constructor') {
         const stmt = b.assignment(b.$(), b.$$())
+
+        const program = getProgram(ctx)
+        const stmts = []
+        for (const setter of program.metadata?.customElement.setters) {
+            stmts.push(b.$$init(setter))
+        }
 
         return {
             ...node,
@@ -12,7 +19,7 @@ export function MethodDefinition(node, ctx) {
                 ...node.value,
                 body: {
                     ...node.value.body,
-                    body: [...node.value.body.body, stmt]
+                    body: [...node.value.body.body, stmt, ...stmts]
                 }
             }
         }

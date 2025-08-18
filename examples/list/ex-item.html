@@ -1,0 +1,23 @@
+<script type="module">
+    import { signal } from '../../src/signals/index.js'
+
+    class Item extends HTMLElement {
+        #value
+        
+        constructor() {
+            super()
+            this.#value = signal(2)
+        }
+
+        set value(val) {
+            this.#value.value = val
+        }
+    }
+</script>
+
+<template>
+    <div>
+        <span>X {value}</span>
+    </div>
+    <style></style>
+</template>

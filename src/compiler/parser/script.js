@@ -38,7 +38,7 @@ export function parseScript(p) {
 function parseProgram(p) {
     const start = p.pos
     skipCode(p)
-    return parseJS(p.input.slice(start, p.pos), { ecmaVersion: 2020, sourceType: 'module' })
+    return parseJS(p.input.slice(start, p.pos), { ecmaVersion: 'latest', sourceType: 'module' })
 }
 
 /**

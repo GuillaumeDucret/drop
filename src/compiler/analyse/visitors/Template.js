@@ -1,8 +1,9 @@
+import * as is from '../../checkers.js'
+
 export function Template(node, ctx) {
-    node.metadata = {elementIds: []}
     ctx.next()
 
-    const isStatic = node.attributes.find((a) => a.name === 'static' && a.value) ?? false
+    const isStatic = node.attributes.some(is.staticAttribute)
 
     ctx.state.isStatic = isStatic
 }

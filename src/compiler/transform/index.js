@@ -15,12 +15,16 @@ import { CssTree, Selector } from './visitors/Selector.js'
 import { CallExpression } from './visitors/CallExpression.js'
 import { IfBlock } from './visitors/IfBlock.js'
 import { EachBlock } from './visitors/EachBlock.js'
+import { CustomElement } from './visitors/CustomElement.js'
+import { AssignmentExpression } from './visitors/AssignmentExpression.js'
+import { PropertyDefinition } from './visitors/PropertyDefinition.js'
 
 const templateVisitors = {
     Template,
     Identifier,
     ExpressionTag,
     Element,
+    CustomElement,
     Text,
     Fragment,
     Style,
@@ -37,7 +41,9 @@ const scriptVisitors = {
     MethodDefinition,
     ClassBody,
     ImportDeclaration,
-    CallExpression
+    CallExpression,
+    AssignmentExpression,
+    PropertyDefinition
 }
 
 export function transform(ast, analysis, context) {

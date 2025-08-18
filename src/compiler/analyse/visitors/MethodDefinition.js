@@ -1,14 +1,17 @@
+import * as is from '../../checkers.js'
+
 export function MethodDefinition(node, ctx) {
     ctx.next()
 
-    switch (node.key.name) {
-        case 'constructor':
-            break
-        case 'connectedCallback':
-            ctx.state.hasConnectedCallbackMethod = true
-            break
-        default:
-            ctx.state.methods.push(node.key.name)
-            break
+    const isPrivate = is.privateId(node.key)
+    const customElement = isPrivate ? ctx.state.customElement.private : ctx.state.customElement
+
+    node.metadata ??= {}
+    node.metadata.isPrivate = isPrivate
+
+    if (node.kind === 'method') {
+        customElement.methods.push(node.key.name)
+    } else if (node.kind === 'set') {
+        customElement.setters.push(node.key.name)
     }
 }

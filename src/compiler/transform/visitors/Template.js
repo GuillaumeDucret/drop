@@ -1,6 +1,7 @@
 import * as b from '../../builders.js'
 
 export function Template(_, ctx) {
+    const modules = new Set()
     const css = []
     const template = []
     const init = { elem: [], text: [] }
@@ -8,7 +9,7 @@ export function Template(_, ctx) {
     const handlers = []
     const blocks = []
 
-    ctx.next({ ...ctx.state, css, template, init, effects, handlers, blocks })
+    ctx.next({ ...ctx.state, modules, css, template, init, effects, handlers, blocks })
 
     const stmts1 = [
         b.declaration('template', b.createElement('template')),
@@ -20,5 +21,5 @@ export function Template(_, ctx) {
     const bodyStmt = [...stmts1, ...stmts2, stmt3]
     const block = b.block(bodyStmt)
 
-    return { type: 'TemplateMod', css, template, block }
+    return { type: 'TemplateMod', modules, css, template, block }
 }

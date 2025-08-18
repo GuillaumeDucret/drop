@@ -51,6 +51,7 @@ export const TokenTypes = {
 }
 
 function name(code) {
+    if (code === 45) return true
     if (code < 48) return false
     if (code < 58) return true
     if (code < 65) return false

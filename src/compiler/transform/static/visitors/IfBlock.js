@@ -20,7 +20,7 @@ export function IfBlock(node, ctx) {
     }
 
     const blockId = nextBlockId(ctx)
-    const block = b.func(blockId, [b.ifStmt(node.test, stmt1), stmt2])
+    const block = b.func(blockId, [b.ifStmt(node.test, [stmt1]), stmt2])
 
     ctx.state.blocks.push(block)
     ctx.state.text.push('')

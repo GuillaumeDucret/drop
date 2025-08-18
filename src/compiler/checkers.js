@@ -1,27 +1,25 @@
-export function id(node) {
-    return node.type === 'Identifier'
-}
-
-export function thisExp(node) {
-    return node.type === 'ThisExpression'
-}
-
-export function member(node, objectCheck, propertyCheck) {
-    return (
-        node.type === 'MemberExpression' && objectCheck(node.object) && propertyCheck(node.property)
-    )
-}
-
-export function call(node, calleeCheck) {
-    return node.type === 'CallExpression' && calleeCheck(node.callee)
-}
-
 //
 // advanced checkers
 //
 
+export function thisMember(node) {
+    return (
+        node.type === 'MemberExpression' &&
+        node.object.type === 'ThisExpression'
+    )
+}
+
 export function signal(node) {
-    return node.type === 'Identifier' && node.name === 'signal'
+    return (
+        node &&
+        node.type === 'CallExpression' &&
+        node.callee.type === 'Identifier' &&
+        node.callee.name === 'signal'
+    )
+}
+
+export function privateId(node) {
+    return node.type === 'PrivateIdentifier'
 }
 
 export function customElements(node) {
@@ -50,4 +48,36 @@ export function querySelector(node) {
         node.callee.property.type === 'Identifier' &&
         node.callee.property.name === 'querySelector'
     )
+}
+
+export function connectedCallback(node) {
+    return node.type === 'MethodDefinition' && node.key.name === 'connectedCallback'
+}
+
+export function disconnectedCallback(node) {
+    return node.type === 'MethodDefinition' && node.key.name === 'disconnectedCallback'
+}
+
+export function classAttribute(node, withExpressionTag) {
+    let result = node.type === 'Attribute' && node.name === 'class'
+    if (withExpressionTag === true) {
+        result &&= node.value[0]?.type === 'ExpressionTag'
+    }
+    return result
+}
+
+export function idAttribute(node, withExpressionTag) {
+    let result = node.type === 'Attribute' && node.name === 'id'
+    if (withExpressionTag === true) {
+        result &&= node.value[0]?.type === 'ExpressionTag'
+    }
+    return result
+}
+
+export function staticAttribute(node) {
+    return node.type === 'Attribute' && node.name === 'static'
+}
+
+export function ifBlock(node) {
+    return node.type === 'IfBlock'
 }

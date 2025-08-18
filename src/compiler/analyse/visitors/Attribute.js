@@ -1,13 +1,11 @@
+import * as is from '../../checkers.js'
+
 export function Attribute(node, ctx) {
     ctx.next()
 
-    if (node.name === 'class' && node.value[0]?.type === 'ExpressionTag') {
+    if (is.classAttribute(node, true) || is.idAttribute(node, true)) {
         node.metadata ??= {}
         node.metadata.isScoped = true
-    }
-
-    if (node.name === 'id' && node.value[0]?.type === 'ExpressionTag') {
-        node.metadata ??= {}
-        node.metadata.isScoped = true
+        return
     }
 }

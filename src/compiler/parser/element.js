@@ -17,7 +17,7 @@ export function parseElement(p) {
     p.expectToken([TokenTypes.lte])
     p.expectToken([TokenTypes.name])
     const name = p.value
-    const type = name === 'slot' ? 'SlotElement' : 'Element'
+    const type = name === 'slot' ? 'SlotElement' : name.includes('-') ? 'CustomElement' : 'Element'
     const attributes = parseAttributes(p)
     p.expectToken([TokenTypes.gte, TokenTypes.slashGte])
 

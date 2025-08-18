@@ -9,6 +9,7 @@ import * as argv from '../utils/argv.js'
 import { serve } from './serve.js'
 import { buildIndex, buildModule, buildRouter } from './build.js'
 import { hash } from '../utils/misc.js'
+import { Registry } from './registry.js'
 
 const command = argv.command()
 
@@ -23,58 +24,78 @@ let binDirPath = path.dirname(fileURLToPath(import.meta.url))
 binDirPath = path.relative(process.cwd(), path.join(binDirPath, '../..')) ? undefined : binDirPath
 const runtimeDirPath = binDirPath ? path.join(binDirPath, '../runtime/index.js') : undefined
 
+const registry = new Registry()
+
 switch (command) {
     case 'build':
+        scan()
         build()
         break
     default:
-        watch(build())
+        scan()
+        build()
+        watch()
         start()
         break
 }
 
-function build() {
-    const registry = {}
-
+function scan() {
     walkDir(srcDirPath, {}, (entry) => {
         if (entry.name === 'index.html') {
             if (!hasRoutes) return
 
             const srcFilePath = path.join(entry.parentPath, entry.name)
-            const index = buildIndex(resolve(srcFilePath))
-            registry[index.ref] = index
+            const index = resolve(srcFilePath)
+            registry.setIndex(index)
             return
         }
 
         if (entry.name.endsWith('.html')) {
             const srcFilePath = path.join(entry.parentPath, entry.name)
-            const module = buildModule(resolve(srcFilePath, true))
-            registry[module.ref] = module
+            const module = resolve(srcFilePath, true)
+            registry.setModule(module)
+            return
+        }
+    })
+    return registry
+}
+
+function build() {
+    walkDir(srcDirPath, {}, (entry) => {
+        if (entry.name === 'index.html') {
+            if (!hasRoutes) return
+
+            const srcFilePath = path.join(entry.parentPath, entry.name)
+            buildIndex(registry.getIndex(srcFilePath))
+            return
+        }
+
+        if (entry.name.endsWith('.html')) {
+            const srcFilePath = path.join(entry.parentPath, entry.name)
+            buildModule(registry.getModule(srcFilePath))
             return
         }
     })
 
     if (hasRoutes) {
-        buildRouter(registry, outDirPath)
+        buildRouter(outDirPath, registry)
     }
     return registry
 }
 
-function watch(registry) {
+function watch() {
     watchDir(srcDirPath, { recursive: true }, (event, fileName) => {
         if (fileName.endsWith('index.html')) {
             if (!hasRoutes) return
 
             const srcFilePath = path.join(srcDirPath, fileName)
-            const index = buildIndex(resolve(srcFilePath))
-            registry[index.ref] = index
+            buildIndex(registry.getIndex(srcFilePath))
             return
         }
 
         if (fileName.endsWith('.html')) {
             const srcFilePath = path.join(srcDirPath, fileName)
-            const module = buildModule(resolve(srcFilePath, true))
-            registry[module.ref] = module
+            buildModule(registry.getModule(srcFilePath))
             return
         }
     })
@@ -113,10 +134,12 @@ function resolve(srcFilePath, isModule) {
     let routerImport = `./${path.relative(outDirPath, filePath)}`
 
     if (isModule) {
-        const runtimeImport = runtimeDirPath ? path.relative(parentPath, runtimeDirPath) : undefined
+        const runtimeImport = runtimeDirPath
+            ? path.relative(parentPath, runtimeDirPath)
+            : 'drop/runtime'
         const importShift = path.relative(parentPath, srcParentPath)
-        const customElementName = path.basename(fileName, '.js')
-        const srcHash = hash(srcFilePath)
+        const name = path.basename(fileName, '.js')
+        const moduleHash = hash(srcFilePath)
 
         let route = path.relative(routesDirPath, srcParentPath)
         route = route.startsWith('..') ? undefined : `/${route}`
@@ -124,16 +147,22 @@ function resolve(srcFilePath, isModule) {
         const isPage = !!route && srcFileName === 'page.html'
         const isLayout = !!route && srcFileName === 'layout.html'
 
+        const moduleImport = (module) => `./${path.relative(parentPath, module.out.filePath)}`
+        const getModule = (name) => registry.getNamedModule(name)
+
         return {
             ref,
+            name,
             runtimeImport,
             importShift,
-            customElementName,
+            customElementName: `${name}-${moduleHash}`,
             route,
             isPage,
             isLayout,
             routerImport,
-            hash: srcHash,
+            hash: moduleHash,
+            moduleImport,
+            getModule,
             src: {
                 filePath: srcFilePath
             },

@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "examples:counter": "node ./src/bin/index.js -root ./examples/counter -srcDir .",
+    "examples:list": "node ./src/bin/index.js -root ./examples/list -srcDir .",
     "examples:site": "node ./src/bin/index.js -root ./examples/site -srcDir ."
   },
   "bin": {
