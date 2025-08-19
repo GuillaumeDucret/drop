@@ -691,7 +691,7 @@ export function shadow() {
     }
 }
 
-export function attachShadow() {
+export function attachShadow(value = 'open') {
     return {
         type: 'CallExpression',
         callee: {
@@ -719,14 +719,31 @@ export function attachShadow() {
                         },
                         value: {
                             type: 'Literal',
-                            value: 'open',
-                            raw: '"open"'
+                            value
                         },
                         kind: 'init'
                     }
                 ]
             }
         ],
+        optional: false
+    }
+}
+
+export function replaceChildren() {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'ThisExpression' },
+            property: {
+                type: 'Identifier',
+                name: 'replaceChildren'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [],
         optional: false
     }
 }

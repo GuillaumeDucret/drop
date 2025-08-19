@@ -19,11 +19,11 @@
     }
 </script>
 
-<template>
+<template shadowRootMode="open">
     <div>
         {#each countries as country }
             <span>{country}</span>
-            <ex-item value="{count}"></ex-item>
+            <ex-item value="{count}">OO</ex-item>
         {/each}
         <button onclick="{increment()}">counter is {count}</button>
         

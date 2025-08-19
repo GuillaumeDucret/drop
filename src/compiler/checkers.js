@@ -3,10 +3,7 @@
 //
 
 export function thisMember(node) {
-    return (
-        node.type === 'MemberExpression' &&
-        node.object.type === 'ThisExpression'
-    )
+    return node.type === 'MemberExpression' && node.object.type === 'ThisExpression'
 }
 
 export function signal(node) {
@@ -75,7 +72,15 @@ export function idAttribute(node, withExpressionTag) {
 }
 
 export function staticAttribute(node) {
-    return node.type === 'Attribute' && node.name === 'static'
+    return (
+        node.type === 'Attribute' &&
+        node.name === 'static' &&
+        (node.value === true || (node.value[0]?.type === 'Text' && node.value[0]?.data === 'true'))
+    )
+}
+
+export function shadowRootModeAttribute(node) {
+    return node.type === 'Attribute' && node.name === 'shadowRootMode'
 }
 
 export function ifBlock(node) {
