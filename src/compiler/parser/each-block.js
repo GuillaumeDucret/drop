@@ -24,6 +24,14 @@ export function parseEachBlock(p) {
 
     p.skipWhitespaces()
     const context = parseIdentifier(p)
+
+    let key
+    p.skipWhitespaces()
+    if (p.readToken([TokenTypes.parenthesesL])) {
+        key = parseExpression(p)
+        p.expectToken([TokenTypes.parenthesesR])
+    }
+
     p.skipWhitespaces()
     p.expectToken([TokenTypes.braceR])
 
@@ -37,7 +45,7 @@ export function parseEachBlock(p) {
 
     if (name !== blockNameClose) throw new Error('wrong closing tag')
 
-    return { type: 'EachBlock', expression, context, body, start, end: p.pos }
+    return { type: 'EachBlock', expression, context, key, body, start, end: p.pos }
 }
 
 /**

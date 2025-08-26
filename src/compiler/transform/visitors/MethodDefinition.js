@@ -32,10 +32,11 @@ export function MethodDefinition(node, ctx) {
         const stmts1 = []
         if (shadowRootMode) {
             stmts1.push(b.assignment(b.shadow(), b.attachShadow(shadowRootMode)))
-        } else {
-            stmts1.push(b.replaceChildren())
         }
-        const stmt2 = ctx.state.template.block
+        if (node.value.body.body.length > 0) {
+            stmts1.push(b.$boundary(node.value.body.body))
+        }
+        const stmt = b.ifStmt(b.$lifecycle('connected'), [...stmts1, ctx.state.template.block])
 
         return {
             ...node,
@@ -43,14 +44,21 @@ export function MethodDefinition(node, ctx) {
                 ...node.value,
                 body: {
                     ...node.value.body,
-                    body: [...stmts1, stmt2, ...node.value.body.body]
+                    body: [stmt]
                 }
             }
         }
     }
 
     if (node.key.name === 'disconnectedCallback') {
-        const stmt1 = b.dispose(b.$())
+        const stmt1 = b.$lifecycle('disconnected')
+        const stmt2 = b.queueMicrotask([
+            b.ifStmt(
+                b.$lifecycle('microtask'),
+                [b.$dispose(), ...node.value.body.body],
+                [b.connectedMoveCallback()]
+            )
+        ])
 
         return {
             ...node,
@@ -58,7 +66,7 @@ export function MethodDefinition(node, ctx) {
                 ...node.value,
                 body: {
                     ...node.value.body,
-                    body: [stmt1, ...node.value.body.body]
+                    body: [stmt1, stmt2]
                 }
             }
         }

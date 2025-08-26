@@ -730,12 +730,12 @@ export function attachShadow(value = 'open') {
     }
 }
 
-export function replaceChildren() {
+export function replaceChildren(object, node) {
     return {
         type: 'CallExpression',
         callee: {
             type: 'MemberExpression',
-            object: { type: 'ThisExpression' },
+            object,
             property: {
                 type: 'Identifier',
                 name: 'replaceChildren'
@@ -743,7 +743,7 @@ export function replaceChildren() {
             computed: false,
             optional: false
         },
-        arguments: [],
+        arguments: [node],
         optional: false
     }
 }
@@ -835,28 +835,113 @@ export function appendChild(object, node) {
     }
 }
 
-export function dispose(object) {
+export function queueMicrotask(body) {
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: { type: 'Identifier', name: 'queueMicrotask' },
+            arguments: [
+                {
+                    type: 'ArrowFunctionExpression',
+                    id: null,
+                    expression: false,
+                    generator: false,
+                    async: false,
+                    params: [],
+                    body: {
+                        type: 'BlockStatement',
+                        body
+                    }
+                }
+            ],
+            optional: false
+        }
+    }
+}
+
+export function connectedMoveCallback() {
     return {
         type: 'ExpressionStatement',
         expression: {
             type: 'CallExpression',
             callee: {
                 type: 'MemberExpression',
-                object,
+                object: {
+                    type: 'ThisExpression'
+                },
                 property: {
                     type: 'Identifier',
-                    name: 'dispose'
+                    name: 'connectedMoveCallback'
                 },
                 computed: false,
                 optional: false
             },
             arguments: [],
-            optional: false
+            optional: true
         }
     }
 }
 
-export function effect(body) {
+export function $dispose() {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'ThisExpression'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                computed: false,
+                optional: false
+            },
+            property: {
+                type: 'Identifier',
+                name: 'dispose'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [],
+        optional: false
+    }
+}
+
+export function $lifecycle(value) {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'ThisExpression'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                computed: false,
+                optional: false
+            },
+            property: {
+                type: 'Identifier',
+                name: 'lifecycle'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: [{ type: 'Literal', value }],
+        optional: false
+    }
+}
+
+export function $effect(body) {
     return {
         type: 'ExpressionStatement',
         expression: {
@@ -1056,25 +1141,30 @@ export function ifBlock(anchor, test, consequent, alternate) {
 }
 
 export function eachBlock(anchor, expression, context, key, body) {
-    const keyStmt = {
-        type: 'ArrowFunctionExpression',
-        id: null,
-        expression: true,
-        generator: false,
-        async: false,
-        params: [
-            {
-                type: 'Identifier',
-                name: 'v'
-            },
-            {
-                type: 'Identifier',
-                name: 'i'
-            }
-        ],
-        body: {
-            type: 'Identifier',
-            name: 'i'
+    let keyStmt
+
+    if (key) {
+        keyStmt = {
+            type: 'ArrowFunctionExpression',
+            id: null,
+            expression: true,
+            generator: false,
+            async: false,
+            params: [context],
+            body: key
+        }
+    } else {
+        keyStmt = {
+            type: 'ArrowFunctionExpression',
+            id: null,
+            expression: true,
+            generator: false,
+            async: false,
+            params: [
+                { type: 'Identifier', name: 'v' },
+                { type: 'Identifier', name: 'i' }
+            ],
+            body: { type: 'Identifier', name: 'i' }
         }
     }
 
@@ -1126,7 +1216,7 @@ export function eachBlock(anchor, expression, context, key, body) {
     }
 }
 
-export function block(body) {
+export function $block(body) {
     return {
         type: 'ExpressionStatement',
         expression: {
@@ -1160,6 +1250,48 @@ export function block(body) {
                     generator: false,
                     async: false,
                     params: [{ type: 'Identifier', name: '$' }],
+                    body: { type: 'BlockStatement', body }
+                }
+            ],
+            optional: false
+        }
+    }
+}
+
+export function $boundary(body) {
+    return {
+        type: 'ExpressionStatement',
+        expression: {
+            type: 'CallExpression',
+            callee: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'MemberExpression',
+                    object: {
+                        type: 'ThisExpression'
+                    },
+                    property: {
+                        type: 'Identifier',
+                        name: '$'
+                    },
+                    computed: false,
+                    optional: false
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'boundary'
+                },
+                computed: false,
+                optional: false
+            },
+            arguments: [
+                {
+                    type: 'ArrowFunctionExpression',
+                    id: null,
+                    expression: true,
+                    generator: false,
+                    async: false,
+                    params: [],
                     body: { type: 'BlockStatement', body }
                 }
             ],

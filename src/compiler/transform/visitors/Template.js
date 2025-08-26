@@ -27,10 +27,10 @@ export function Template(node, ctx) {
         b.assignment(b.innerHTML('template'), b.binary('+', b.id('TEMPLATE'), b.id('STYLE')))
     ]
     const stmts2 = [...init.elem, ...init.text, ...effects, ...handlers, ...blocks]
-    const stmt3 = b.appendChild(rootId, b.member('template', 'content'))
+    const stmt3 = b.replaceChildren(rootId, b.member('template', 'content'))
 
     const bodyStmt = [...stmts1, ...stmts2, stmt3]
-    const block = b.block(bodyStmt)
+    const block = b.$block(bodyStmt)
 
     return { type: 'TemplateMod', metadata: node.metadata, modules, css, template, block }
 }

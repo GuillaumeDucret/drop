@@ -69,6 +69,7 @@ export class EachBlock extends Map {
             const iterable = this.getIterable()
 
             for (const block of this.#getRemovedBlocks(iterable)) {
+                console.log('REM')
                 this.#removeBlock(block)
             }
 

@@ -1,12 +1,18 @@
 <script type="module">
-    import { signal } from '../../src/signals/index.js'
+    import { signal, effect } from '../../src/signals/index.js'
 
     class Item extends HTMLElement {
-        #value
+        #value = 0
         
         constructor() {
             super()
             this.#value = signal(2)
+        }
+
+        connectedCallback() {
+            effect(() => {
+                console.log(this.#value.value)
+            })
         }
 
         set value(val) {

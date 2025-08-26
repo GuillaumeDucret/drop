@@ -1,5 +1,5 @@
 <script type="module">
-    import { signal } from '../../src/signals/index.js'
+    import { signal, effect } from '../../src/signals/index.js'
 
     export class List extends HTMLElement {
         constructor() {
@@ -16,16 +16,24 @@
 
             this.countries.value = [...this.countries.value, 'US' + this.count.value]
         }
+        #move() {
+            this.countries.value = [...this.countries.value.slice(1), this.countries.value[0]]
+        }
+        #remove() {
+            this.countries.value = this.countries.value.slice(1)
+        }
     }
 </script>
 
 <template shadowRootMode="open">
     <div>
-        {#each countries as country }
+        {#each countries as country (country)}
             <span>{country}</span>
             <ex-item value="{count}">OO</ex-item>
         {/each}
         <button onclick="{increment()}">counter is {count}</button>
+        <button onclick="{move()}">move</button>
+        <button onclick="{remove()}">remove</button>
         
     </div>
     <style>

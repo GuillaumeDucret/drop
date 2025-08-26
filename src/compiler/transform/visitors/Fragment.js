@@ -49,7 +49,7 @@ export function Fragment(node, ctx) {
         const textStmt = b.declaration(textId, b.sibling(b.child(rootId), index))
         ctx.state.init.text.push(textStmt)
 
-        const effectStmt = b.effect([
+        const effectStmt = b.$effect([
             b.assignment(b.textContent(textId), b.template(text, expressions))
         ])
         ctx.state.template.push(' ')

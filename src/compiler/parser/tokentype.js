@@ -47,7 +47,9 @@ export const TokenTypes = {
     braceR: charTT('}', [125]),
     braceLHash: charTT('{#', [123, 35]),
     braceLColumn: charTT('{:', [123, 58]),
-    braceLSlash: charTT('{/', [123, 47])
+    braceLSlash: charTT('{/', [123, 47]),
+    parenthesesL: charTT('(', [40]),
+    parenthesesR: charTT(')', [41]),
 }
 
 function name(code) {

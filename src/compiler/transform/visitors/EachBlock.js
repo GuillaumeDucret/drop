@@ -21,7 +21,7 @@ export function EachBlock(node, ctx) {
     const bodyStmt = [...stmts1, ...stmts2, stmt3]
     const expressionStmt = ctx.visit(node.expression)
     const anchorStmt = b.declaration(anchorId, pathStmt(ctx, node))
-    const blockStmt = b.eachBlock(anchorId, expressionStmt, node.context, undefined, bodyStmt)
+    const blockStmt = b.eachBlock(anchorId, expressionStmt, node.context, node.key, bodyStmt)
 
     ctx.state.init.elem.push(anchorStmt)
     ctx.state.blocks.push(blockStmt)
