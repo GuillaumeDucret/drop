@@ -4,8 +4,11 @@
     export class List extends HTMLElement {
         constructor() {
             super()
-            this.count = signal(0)
-            this.countries = signal(['FR', 'CA'])
+            this.count = signal({ value: 0 })
+            this.countries = signal([
+                { code: 'FR', label: 'fr' },
+                { code: 'CA', label: 'ca' }
+            ])
         }
 
         #increment(inc = 1) {
@@ -14,27 +17,29 @@
             const button = this.shadow.querySelector('button')
             button.style.color = 'red'
 
-            this.countries.value = [...this.countries.value, 'US' + this.count.value]
+            this.countries.push({ code: 'US' + this.count.value, label: 'us' })
         }
         #move() {
-            this.countries.value = [...this.countries.value.slice(1), this.countries.value[0]]
+            this.countries.push(this.countries.shift())
         }
         #remove() {
-            this.countries.value = this.countries.value.slice(1)
+            this.countries[0] = { code: 'FR', label: 'fr1' }
+            //this.countries[0].label = 'fr11'
+            //this.countries.code = 'FR'
         }
     }
 </script>
 
 <template shadowRootMode="open">
     <div>
-        {#each countries as country (country)}
-            <span>{country}</span>
-            <ex-item value="{count}">OO</ex-item>
-        {/each}
-        <button onclick="{increment()}">counter is {count}</button>
+        <ul>
+            {#each countries as country (country.code)}
+            <ex-item code="{country.label}">OO</ex-item>
+            {/each}
+        </ul>
+        <button onclick="{increment()}">counter is {count.value}</button>
         <button onclick="{move()}">move</button>
         <button onclick="{remove()}">remove</button>
-        
     </div>
     <style>
         div {

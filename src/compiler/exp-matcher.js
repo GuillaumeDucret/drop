@@ -1,6 +1,6 @@
 import { walk } from 'zimmerframe'
 
-export function matchExpression(expression, program) {
+export function matchExpression(expression, program, blocks) {
     let customElement = program.metadata?.customElement
 
     walk(expression, undefined, {
@@ -10,41 +10,54 @@ export function matchExpression(expression, program) {
             switch (parentNode?.type) {
                 case 'CallExpression':
                     if (parentNode.callee === node) {
-                        setMethodMetadata(node, customElement)
-                        setMethodMetadata(node, customElement.private, true)
+                        setMethodMetadata(node)
                     }
                     break
                 case 'MemberExpression':
                     if (parentNode.object === node) {
-                        setMetadata(node, customElement)
-                        setMetadata(node, customElement.private, true)
+                        setMetadata(node)
                     }
                     break
                 default:
-                    setMetadata(node, customElement)
-                    setMetadata(node, customElement.private, true)
+                    setMetadata(node)
             }
         }
     })
 
-    function setMethodMetadata(node, customElement, isPrivate = false) {
+    function setMethodMetadata(node) {
         node.metadata ??= {}
 
         if (customElement.methods.includes(node.name)) {
-            node.metadata.isPrivate = isPrivate
+            node.metadata.isPrivate = false
             node.metadata.isMethod = true
+            return
+        }
+
+        if (customElement.private.methods.includes(node.name)) {
+            node.metadata.isPrivate = true
+            node.metadata.isMethod = true
+            return
         }
     }
 
-    function setMetadata(node, customElement, isPrivate = false) {
+    function setMetadata(node) {
         node.metadata ??= {}
 
-        if (customElement.signals.includes(node.name)) {
-            node.metadata.isPrivate = isPrivate
-            node.metadata.isSignal = true
-        } else if (customElement.properties.includes(node.name)) {
-            node.metadata.isPrivate = isPrivate
+        if (blocks.some((b) => b.context?.name === node.name)) {
+            node.metadata.isBlockVar = true
+            return
+        }
+
+        if (customElement.properties.includes(node.name)) {
+            node.metadata.isPrivate = false
             node.metadata.isProperty = true
+            return
+        }
+
+        if (customElement.private.properties.includes(node.name)) {
+            node.metadata.isPrivate = true
+            node.metadata.isProperty = true
+            return
         }
     }
 }

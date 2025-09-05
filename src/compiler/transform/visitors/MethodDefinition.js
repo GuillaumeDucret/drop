@@ -6,12 +6,15 @@ export function MethodDefinition(node, ctx) {
 
     if (node.key.name === 'constructor') {
         const program = getProgram(ctx)
-        const setters = program.metadata?.customElement.setters
+        const { properties, setters } = program.metadata?.customElement
 
         const stmt1 = b.assignment(b.$(), b.$$())
         const stmts2 = []
         for (const setter of setters) {
             stmts2.push(b.$$init(setter))
+        }
+        for (const property of properties) {
+            stmts2.push(b.$instrument(property))
         }
 
         return {
@@ -67,6 +70,38 @@ export function MethodDefinition(node, ctx) {
                 body: {
                     ...node.value.body,
                     body: [stmt1, stmt2]
+                }
+            }
+        }
+    }
+
+    if (node.key.name === 'getAttribute') {
+        const stmt1 = b.$trackAttribute(node.value.params)
+
+        return {
+            ...node,
+            value: {
+                ...node.value,
+                params: stmt1.arguments,
+                body: {
+                    ...node.value.body,
+                    body: [stmt1, ...node.value.body.body]
+                }
+            }
+        }
+    }
+
+    if (node.key.name === 'attributeChangedCallback') {
+        const stmt1 = b.$attributeChanged(node.value.params)
+
+        return {
+            ...node,
+            value: {
+                ...node.value,
+                params: stmt1.arguments,
+                body: {
+                    ...node.value.body,
+                    body: [stmt1, ...node.value.body.body]
                 }
             }
         }

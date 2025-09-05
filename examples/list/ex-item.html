@@ -2,28 +2,26 @@
     import { signal, effect } from '../../src/signals/index.js'
 
     class Item extends HTMLElement {
-        #value = 0
+        static observedAttributes = ["code"];
+
+        value
         
         constructor() {
             super()
-            this.#value = signal(2)
         }
 
         connectedCallback() {
             effect(() => {
-                console.log(this.#value.value)
+                console.log(this.getAttribute('code'))
             })
         }
 
-        set value(val) {
-            this.#value.value = val
-        }
     }
 </script>
 
 <template>
     <div>
-        <span>X {value}</span>
+        <span>X {getAttribute('code')}</span>
     </div>
     <style>div {background-color: aqua;}</style>
 </template>

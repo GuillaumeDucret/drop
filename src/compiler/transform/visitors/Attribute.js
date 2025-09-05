@@ -41,12 +41,12 @@ export function Attribute(node, ctx) {
         const module = ctx.state.module
         if (module) {
             const moduleId = getModuleId(ctx, module.name)
-            const stmt = b.$effect([b.$set(moduleId, rootId, node.name, b.template(text, expressions))])
+            const stmt = b.$effect([b.$set(moduleId, rootId, node.name, expressions[0])])
             ctx.state.effects.push(stmt)
             return
         }
 
-        const stmt = b.$effect([b.setAttribute(rootId, node.name, b.template(text, expressions))])
+        const stmt = b.$effect([b.setAttribute(rootId, node.name, expressions[0])])
         ctx.state.effects.push(stmt)
         return
     }

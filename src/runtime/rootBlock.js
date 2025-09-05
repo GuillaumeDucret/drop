@@ -1,4 +1,4 @@
-import { Client } from './index.js'
+import { Client } from './client.js'
 
 export function rootBlock(body) {
     const block = new Client()

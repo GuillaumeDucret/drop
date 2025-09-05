@@ -1,12 +1,10 @@
 export function Program(node, ctx) {
     const customElement = {
         className: [],
-        signals: [],
         properties: [],
-        methods: [],
+        methods: ['getAttribute'],
         setters: [],
         private: {
-            signals: [],
             properties: [],
             methods: [],
             setters: []

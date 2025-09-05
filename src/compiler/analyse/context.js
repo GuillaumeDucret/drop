@@ -17,6 +17,10 @@ export function getScript(ctx) {
     return ctx.path.toReversed().find((n) => n.type === 'Script')
 }
 
+export function getBlocks(ctx) {
+    return ctx.path.toReversed().filter((n) => n.type === 'EachBlock')
+}
+
 export function isInConstructor(ctx) {
     for (const node of ctx.path.toReversed()) {
         if (node.type === 'ArrowFunctionExpression') return false

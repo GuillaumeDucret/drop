@@ -8,13 +8,7 @@ export function AssignmentExpression(node, ctx) {
 
         node.metadata ??= {}
         node.metadata.isPrivate = isPrivate
-
-        if (is.signal(node.right)) {
-            node.metadata.isSignal = true
-            customElement.signals.push(node.left.property.name)
-        } else {
-            node.metadata.isProperty = true
-            customElement.properties.push(node.left.property.name)
-        }
+        node.metadata.isProperty = true
+        customElement.properties.push(node.left.property.name)
     }
 }

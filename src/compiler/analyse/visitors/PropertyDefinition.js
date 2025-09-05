@@ -6,12 +6,5 @@ export function PropertyDefinition(node, ctx) {
 
     node.metadata ??= {}
     node.metadata.isPrivate = isPrivate
-
-    if (is.signal(node.value)) {
-        node.metadata.isSignal = true
-        customElement.signals.push(node.key.name)
-    } else {
-        node.metadata.isProperty = true
-        customElement.properties.push(node.key.name)
-    }
+    customElement.properties.push(node.key.name)
 }

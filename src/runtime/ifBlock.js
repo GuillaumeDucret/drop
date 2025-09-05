@@ -1,4 +1,4 @@
-import { Effect } from '../signals/index.js'
+import { Effect } from '../signals/effect.js'
 import { Client } from './client.js'
 
 export class IfBlock {

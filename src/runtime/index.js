@@ -1,11 +1,12 @@
-import { Boundary, Effect } from '../signals/index.js'
+import { Boundary, Effect, AttributeTracker, PropertyTracker, track } from '../signals/effect.js'
+import { Signal, SignalEvent } from '../signals/signal.js'
 import { Client } from './client.js'
 import { EachBlock } from './eachBlock.js'
 import { IfBlock } from './ifBlock.js'
 
 export { EachBlock, IfBlock }
 
-export function $$() {
+export function $$(customElement) {
     Client.prototype.effect ??= function (fn) {
         const effect = new Effect(fn, true).run()
         this.add(effect)
@@ -25,9 +26,10 @@ export function $$() {
     }
 
     const client = new Client()
+    let signal
 
     client.boundary = function (fn) {
-        const boundary = new Boundary(fn).init()
+        const boundary = new Boundary(fn, true).init()
         this.add(boundary)
         return boundary
     }
@@ -60,18 +62,51 @@ export function $$() {
         }
     }
 
+    client.instrument = function (property) {
+        signal ??= new Signal(undefined, customElement)
+
+        let value = customElement[property]
+        Object.defineProperty(customElement, property, {
+            get: () => {
+                track?.(new PropertyTracker(signal, property))
+                return value
+            },
+            set: (nextValue) => {
+                const hasChange = value !== nextValue
+                value = nextValue
+
+                if (hasChange) {
+                    signal.dispatchEvent(new SignalEvent('set', { property }))
+                    signal.dispatchEvent(new SignalEvent('change'))
+                }
+            }
+        })
+    }
+
+    client.trackAttribute = function (name) {
+        signal ??= new Signal(undefined, customElement)
+        track?.(new AttributeTracker(signal, name))
+    }
+
+    client.attributeChanged = function (name, value, nextValue) {
+        if (value !== nextValue) {
+            signal ??= new Signal(undefined, customElement)
+            signal.dispatchEvent(new SignalEvent('attributeChanged', { name }))
+        }
+    }
+
     return client
 }
 
-$$.init = function (object, name, value) {
-    const set = arguments.length === 2
+$$.init = function (object, property, value) {
+    const isSetter = arguments.length === 2
 
-    if (object.hasOwnProperty(name)) {
-        value = object[name]
-        delete object[name]
+    if (object.hasOwnProperty(property)) {
+        value = object[property]
+        delete object[property]
 
-        if (set) {
-            object[name] = value
+        if (isSetter) {
+            object[property] = value
         }
     }
     return value

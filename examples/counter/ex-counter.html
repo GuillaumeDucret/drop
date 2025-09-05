@@ -4,17 +4,17 @@
     export class Counter extends HTMLElement {
         constructor() {
             super()
-            this.count = signal(0)
-            this.countries = signal(['FR', 'CA'])
+            this.count = 0
+            this.countries = ['FR', 'CA']
         }
 
         increment(inc = 1) {
-            this.count.value += inc
+            this.count += inc
 
-            const button = this.shadow.querySelector('button')
+            const button = this.querySelector('button')
             button.style.color = 'red'
 
-            this.countries.value = [...this.countries.value, 'US' + this.count.value]
+            this.countries = [...this.countries, 'US' + this.count]
         }
     }
 </script>

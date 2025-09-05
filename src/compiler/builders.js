@@ -634,6 +634,34 @@ export function $$init(property, value) {
     }
 }
 
+export function $instrument(value) {
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: { type: 'ThisExpression' },
+            property: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: 'instrument'
+                },
+                computed: false,
+                optional: false
+            },
+            computed: false,
+            optional: false
+        },
+
+        arguments: [{ type: 'Literal', value }],
+        optional: false
+    }
+}
+
 export function createElement(value) {
     return {
         type: 'CallExpression',
@@ -671,7 +699,7 @@ export function $$() {
             type: 'Identifier',
             name: '$$'
         },
-        arguments: [],
+        arguments: [{ type: 'ThisExpression' }],
         optional: false
     }
 }
@@ -941,6 +969,72 @@ export function $lifecycle(value) {
     }
 }
 
+export function $trackAttribute(argumentsStmt) {
+    argumentsStmt = [...argumentsStmt]
+    argumentsStmt[0] ??= { type: 'Identifier', name: 'name' }
+
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'ThisExpression'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                computed: false,
+                optional: false
+            },
+            property: {
+                type: 'Identifier',
+                name: 'trackAttribute'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: argumentsStmt,
+        optional: false
+    }
+}
+
+export function $attributeChanged(argumentsStmt) {
+    argumentsStmt = [...argumentsStmt]
+    argumentsStmt[0] ??= { type: 'Identifier', name: 'name' }
+    argumentsStmt[1] ??= { type: 'Identifier', name: 'value' }
+    argumentsStmt[2] ??= { type: 'Identifier', name: 'nextValue' }
+
+    return {
+        type: 'CallExpression',
+        callee: {
+            type: 'MemberExpression',
+            object: {
+                type: 'MemberExpression',
+                object: {
+                    type: 'ThisExpression'
+                },
+                property: {
+                    type: 'Identifier',
+                    name: '$'
+                },
+                computed: false,
+                optional: false
+            },
+            property: {
+                type: 'Identifier',
+                name: 'attributeChanged'
+            },
+            computed: false,
+            optional: false
+        },
+        arguments: argumentsStmt,
+        optional: false
+    }
+}
+
 export function $effect(body) {
     return {
         type: 'ExpressionStatement',
@@ -1023,6 +1117,77 @@ export function disconnectedCallback(body = []) {
             body: {
                 type: 'BlockStatement',
                 body
+            }
+        }
+    }
+}
+
+export function attributeChangedCallback(body = []) {
+    return {
+        type: 'MethodDefinition',
+        static: false,
+        computed: false,
+        key: {
+            type: 'Identifier',
+            name: 'attributeChangedCallback'
+        },
+        kind: 'method',
+        value: {
+            type: 'FunctionExpression',
+            id: null,
+            expression: false,
+            generator: false,
+            async: false,
+            params: [{ type: 'Identifier', name: 'name' }],
+            body: {
+                type: 'BlockStatement',
+                body
+            }
+        }
+    }
+}
+
+export function getAttribute() {
+    return {
+        type: 'MethodDefinition',
+        static: false,
+        computed: false,
+        key: {
+            type: 'Identifier',
+            name: 'getAttribute'
+        },
+        kind: 'method',
+        value: {
+            type: 'FunctionExpression',
+            id: null,
+            expression: false,
+            generator: false,
+            async: false,
+            params: [{ type: 'Identifier', name: 'name' }],
+            body: {
+                type: 'BlockStatement',
+                body: [
+                    {
+                        type: 'ReturnStatement',
+                        argument: {
+                            type: 'CallExpression',
+                            callee: {
+                                type: 'MemberExpression',
+                                object: {
+                                    type: 'Super'
+                                },
+                                property: {
+                                    type: 'Identifier',
+                                    name: 'getAttribute'
+                                },
+                                computed: false,
+                                optional: false
+                            },
+                            arguments: [{ type: 'Identifier', name: 'name' }],
+                            optional: false
+                        }
+                    }
+                ]
             }
         }
     }

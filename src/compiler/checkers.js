@@ -6,15 +6,6 @@ export function thisMember(node) {
     return node.type === 'MemberExpression' && node.object.type === 'ThisExpression'
 }
 
-export function signal(node) {
-    return (
-        node &&
-        node.type === 'CallExpression' &&
-        node.callee.type === 'Identifier' &&
-        node.callee.name === 'signal'
-    )
-}
-
 export function privateId(node) {
     return node.type === 'PrivateIdentifier'
 }
@@ -53,6 +44,22 @@ export function connectedCallback(node) {
 
 export function disconnectedCallback(node) {
     return node.type === 'MethodDefinition' && node.key.name === 'disconnectedCallback'
+}
+
+export function getAttribute(node) {
+    return node.type === 'MethodDefinition' && node.key.name === 'getAttribute'
+}
+
+export function attributeChangedCallback(node) {
+    return node.type === 'MethodDefinition' && node.key.name === 'attributeChangedCallback'
+}
+
+export function observedAttributes(node) {
+    return (
+        node.type === 'PropertyDefinition' &&
+        node.key.name === 'observedAttributes' &&
+        node.static === true
+    )
 }
 
 export function classAttribute(node, withExpressionTag) {

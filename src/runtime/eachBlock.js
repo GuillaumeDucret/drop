@@ -1,4 +1,5 @@
-import { Effect, Signal } from '../signals/index.js'
+import { Effect, track, Tracker } from '../signals/effect.js'
+import { Signal, SignalEvent } from '../signals/signal.js'
 import { Client } from './client.js'
 
 export class EachBlock extends Map {
@@ -16,7 +17,7 @@ export class EachBlock extends Map {
     #insertBlockAfter(block, tail) {
         const anchor = tail.nextNode
 
-        this.fn(block, anchor, block.value)
+        this.fn(block, anchor, block.getValue)
         block.anchor = anchor.previousSibling
 
         tail.insertAfter(block)
@@ -86,7 +87,7 @@ export class EachBlock extends Map {
                         tail = updateBlock(this.#moveBlockAfter(block, tail), item)
                     }
                 } else {
-                    tail = this.#insertBlockAfter(new Block(key, new Signal(item)), tail)
+                    tail = this.#insertBlockAfter(new Block(key, item), tail)
                 }
 
                 index++
@@ -105,7 +106,7 @@ export class EachBlock extends Map {
 }
 
 function updateBlock(block, value) {
-    block.value.value = value
+    block.setValue(value)
     return block
 }
 
@@ -114,15 +115,29 @@ export function eachBlock(anchor, getIterable, getKey, body) {
 }
 
 class Block extends Client {
+    constructor(key, value) {
+        super()
+        this.key = key
+        this.value = value
+        this.signal = new Signal(undefined, this)
+    }
+
     /** @type {Node} */
     anchor
     /** @type {Node} */
     parentAnchor
 
-    constructor(key, value) {
-        super()
-        this.key = key
-        this.value = value
+    setValue(nextValue) {
+        const hasChange = this.value !== nextValue
+        this.value = nextValue
+        if (hasChange) {
+            this.signal.dispatchEvent(new SignalEvent('change'))
+        }
+    }
+
+    getValue = () => {
+        track?.(new Tracker(this.signal))
+        return this.value
     }
 
     insertAfter(block) {
